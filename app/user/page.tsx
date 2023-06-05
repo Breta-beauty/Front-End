@@ -1,13 +1,16 @@
 "use client";
-import { useRef } from "react";
-import Image from "next/image";
-import MonochromaticLogo from "@/public/icons/logo";
+
+import SalonCard from "@/components/SalonCard";
 
 export default function UserPage() {
 
 
   return (
     <>
+    <div className="w-sm">
+    </div>
+    <SalonCard
+    />
     </>
   );
 }
