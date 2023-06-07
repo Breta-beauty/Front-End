@@ -1,4 +1,5 @@
 import SalonList from "@/components/SalonList";
+import BottomNavDrawer from "@/components/BottomNavDrawer";
 
 export default function UserPage() {
   //Fetch Salon Data and pass it to the List component
@@ -24,8 +25,11 @@ export default function UserPage() {
   ];
 
   return (
+    <>
+    <BottomNavDrawer/>
     <SalonList
       salonList={salonList}
       />
+    </>
   );
 }
