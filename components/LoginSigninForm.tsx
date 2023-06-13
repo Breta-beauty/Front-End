@@ -28,8 +28,8 @@ export default function LoginSigninForm() {
   };
 
   const renderErrors = (errors: any) => {
-    return errors.map(() => {
-      return <div className=" text-breta-orange font-sm mt-2">{errors}</div>;
+    return errors.map((error:string,index:number) => {
+      return <div key={index} className=" text-breta-orange font-sm mt-2">{errors}</div>;
     });
   };
 
@@ -68,20 +68,17 @@ export default function LoginSigninForm() {
     const URL: string = "https://breta-api.up.railway.app/graphql";
     const graphqlQuerry: string = `mutation{
       createUser(createUserInput: {
-        username: "${username}"
         full_name: "${username}"
         email: "${email}"
         password: "${password}"
         gender: "${gender}"
         cellphone: "${cellphoneField}"
         birthday: "${new Date(stringDateOfBirth)}"
+        type: "${userType}"
       }){
         user_id
-        username
-        email
       }
     }`;
-    console.log(graphqlQuerry);
     const options = {
       method: "POST",
       headers: headers,
@@ -122,8 +119,7 @@ export default function LoginSigninForm() {
             }){
                 access_token
                 user{ 
-                    username
-                    email
+                  user_id
                 }
             }
         }`;
@@ -158,7 +154,7 @@ export default function LoginSigninForm() {
   return (
     <>
       {hiddenStatus == false && (
-        <aside className="absolute right-0 rounded-t-[3rem] h-4/5 bottom-0 flex flex-col bg-white w-full md:h-full md:w-[25%] z-10 md:rounded-l-[3rem]">
+        <aside className="absolute right-0 rounded-t-[3rem] h-4/5 bottom-0 flex flex-col bg-white w-full md:h-full md:w-[40%] xl:w-[25%] z-10 md:rounded-l-[3rem] md:rounded-tr-[0rem]">
           <div className="relative flex flex-col justify-center items-center p-4 h-full w-full md:p-4 lg:p-6">
             <button
               className="absolute top-5 right-5 pointer md:hidden"
@@ -409,7 +405,7 @@ export default function LoginSigninForm() {
                       >
                         <li className="list-none">
                           <input
-                            onChange={() => (setUserType("user"))}
+                            onChange={() => (setUserType("customer"))}
                             type="radio"
                             id="hosting-small"
                             name="hosting"
