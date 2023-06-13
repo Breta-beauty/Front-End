@@ -1,4 +1,5 @@
 "use client";
+import { SignUp, SignIn } from "@clerk/nextjs";
 import LoginSignInCarousel from "@/components/LoginSignInCarousel";
 import LoginSigninForm from "@/components/LoginSigninForm";
 import LoginSigninHeader from "@/components/LoginSigninHeader";
@@ -12,7 +13,8 @@ export default function Home() {
           <div className="w-full md:w-4/5 h-full">
             <LoginSignInCarousel />
           </div>
-          <LoginSigninForm />
+          <SignUp/>
+          {/* <LoginSigninForm /> */}
         </div>
       </div>
     </>
