@@ -1,47 +1,60 @@
 "use client";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper";
-import { useSwiper } from "swiper/react";
-import { useCallback, useRef } from "react";
+import { Pagination } from "swiper";
 import { useState } from "react";
 import "swiper/css";
-import { PaginationOptions } from "swiper/types";
 
 export default function LoginSignInCarousel() {
-  const swiper = useSwiper();
-  const images = [
+  const salonText = [
     {
-      image:
-      "/images/see-you-soon-cropped-shot-of-a-handsome-young-bar-2023-01-04-20-37-56-utc 1.png",
+
       title: "Gestiona tu salón y automatiza tus citas",
       text: "Con BRETA gestiona a tu equipo, los servicios que ofreces y la forma en la que gestionas tus citas.",
     },
     {
-      image:
-        "/images/hairdresser-checking-her-schedule-2022-04-27-01-52-24-utc 1.png",
-        title: "Monitorea tus estadísticas ",
+
+      title: "Monitorea tus estadísticas ",
       text: "Revisa tu progreso con gráficas claras y fáciles de entender, detecta áreas de oportunidad y aprovecha tus fortalezas.",
     },
     {
-      image:
-        "/images/dyeing-hair-in-hairdressing-salon-2021-08-26-15-43-19-utc 1.png",
+
       title: "Promueve tus servicios",
       text: "Podrás crear promociones para incentivar tus servicios y darte a conocer.",
     },
     {
-      image:
-        "/images/asian-young-asian-woman-setting-open-sign-at-the-s-2022-12-16-03-21-34-utc 1.png",
+
       title: "Proyecta tu negocio e incrementa tus citas",
       text: "Con BRETA como pinto de venta, llegarás a más clientes y darás a conocer tus servicios y promociones.",
     },
   ];
-  const[ carouselPage, setCarouselPage] = useState<number>(0)
+  const clientText = [
+    {
+
+      title: "Más cerca de los servicios que más te gustan.",
+      text: "Con Breta podrás conocer las ofertas de servicios de los salones más cercanos a ti.",
+    },
+    {
+
+      title: "Reserva y gestiona tus citas.",
+      text: "Podrás reservar citas, solictar cambios o cancelarlas desde la comodidad de tu celular.",
+    },
+    {
+
+      title: "Aprovecha grandes promociones.",
+      text: "Podrás disfrutar de promociones exclusivas, así como de cualquier salón.",
+    },
+    {
+
+      title: "Encuentra lo que necesitas en cualquier lugar.",
+      text: "Encuentra recomendaciones cuando viajas a una ciudad que no conozcas.",
+    },
+  ];
   const pagination = {
     clickable: true,
     renderBullet: function (index: any, className: any) {
       return `<span class="${className}"></span>`;
     },
-  }
+  };
 
   return (
     <>
@@ -50,26 +63,69 @@ export default function LoginSignInCarousel() {
         pagination={pagination}
         direction="horizontal"
         loop={true}
-        initialSlide={carouselPage}
-        className="relative w-full flex-1"
+        className="w-full h-full"
       >
-        {images.map((image, index) => {
-          return (
-            <SwiperSlide className="relative h-full" key={index}>
-              <div className="absolute bottom-10 left-10 flex flex-col text-white z-20">
-                <div className="text-2xl font-bold tracking-wide">
-                  {image.title}
-                </div>
-                <div className="">{image.text}</div>
-              </div>
-              <div className="bg-gradient-to-bl from-transparent to-stone-900 z-40 opacity-30"></div>
-              <img
-                src={image.image}
-                className="h-full"
-              />
-            </SwiperSlide>
-          );
-        })}
+        <SwiperSlide
+          className={`relative h-full w-full bg-cover bg-MobileCarouselImage0 md:bg-salonCarouselImage0`}
+        >
+          <div className="absolute bottom-10 left-10 md:flex flex-col text-white z-20 hidden md:visible">
+            <div className="text-2xl font-bold tracking-wide">
+              {salonText[0].title}
+            </div>
+            <div className="">{salonText[0].text}</div>
+          </div>
+          <div className="md:hidden absolute bottom-40 left-1/2 transform -translate-x-1/2 text-left w-full p-2 z-40">
+            <div className="text-[2rem] font-bold text-white mb-4">{clientText[0].title}</div>
+            <div className="text-breta-gray">{clientText[0].text}</div>
+          </div>
+          <div className="w-full h-full bg-gradient-to-bl from-transparent to-stone-900 opacity-50 z-10"></div>
+        </SwiperSlide>
+        <SwiperSlide
+          className={`relative h-full bg-cover bg-MobileCarouselImage1 md:bg-salonCarouselImage1`}
+        >
+          <div className="absolute bottom-10 left-10 md:flex flex-col text-white z-20 hidden md:visible">
+            <div className="text-2xl font-bold tracking-wide">
+              {salonText[1].title}
+            </div>
+            <div className="">{salonText[1].text}</div>
+          </div>
+          <div className="md:hidden absolute bottom-40 left-1/2 transform -translate-x-1/2 text-left w-full p-2 z-40">
+            <div className="text-[2rem] font-bold text-white mb-4">{clientText[1].title}</div>
+            <div className="text-breta-gray">{clientText[1].text}</div>
+          </div>
+          <div className="w-full h-full bg-gradient-to-bl from-transparent to-stone-900 opacity-50 z-10"></div>
+        </SwiperSlide>
+        <SwiperSlide
+          className={`relative h-full bg-cover bg-MobileCarouselImage2 md:bg-salonCarouselImage2`}
+        >
+          <div className="absolute bottom-10 left-10 md:flex flex-col text-white z-20 hidden md:visible">
+            <div className="text-2xl font-bold tracking-wide">
+              {salonText[2].title}
+            </div>
+            <div className="">{salonText[2].text}</div>
+          </div>
+          <div className="md:hidden absolute bottom-40 left-1/2 transform -translate-x-1/2 text-left w-full p-2 z-40">
+            <div className="text-[2rem] font-bold text-white mb-4">{clientText[2].title}</div>
+            <div className="text-breta-gray">{clientText[2].text}</div>
+          </div>
+          <div className="w-full h-full bg-gradient-to-bl from-transparent to-stone-900 opacity-50 z-10"></div>
+        </SwiperSlide>
+        <SwiperSlide
+          className={`relative h-full bg-cover bg-MobileCarouselImage3 md:bg-salonCarouselImage3`}
+        >
+          <div className="absolute bottom-10 left-10 md:flex flex-col text-white z-20 hidden md:visible">
+            <div className="text-2xl font-bold tracking-wide">
+              {salonText[3].title}
+            </div>
+            <div className="">{salonText[3].text}</div>
+          </div>
+          <div className="md:hidden absolute bottom-40 left-1/2 transform -translate-x-1/2 text-left w-full p-2 z-40">
+            <div className="text-[2rem] font-bold text-white mb-4">{clientText[3].title}</div>
+            <div className="text-breta-gray">{clientText[3].text}</div>
+          </div>
+          <div className="w-full h-full bg-gradient-to-bl from-transparent to-stone-900 opacity-50 z-10"></div>
+        </SwiperSlide>
+
       </Swiper>
     </>
   );
