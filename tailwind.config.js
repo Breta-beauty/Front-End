@@ -16,8 +16,9 @@ module.exports = {
         'breta-green':'#29CC00',
         'breta-light-green':'#A5D2BF',
         'breta-dark-green':'#5A948A',
-        'breta-yellow':'#E0D81F',
+        'breta-yellow':'#F9CD45',
         'breta-orange':'#FF7A00',
+        'breta-shadow':'#879EB3'
       },
       backgroundImage: {
         'salonCarouselImage0':"url('/images/see-you-soon-cropped-shot-of-a-handsome-young-bar-2023-01-04-20-37-56-utc 1.png')",
