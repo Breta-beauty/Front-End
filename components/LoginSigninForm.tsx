@@ -120,6 +120,7 @@ export default function LoginSigninForm() {
                 access_token
                 user{ 
                   user_id
+                  type
                 }
             }
         }`;
@@ -134,7 +135,7 @@ export default function LoginSigninForm() {
         const result = data.data;
         if (result != null) {
           localStorage.setItem("token", data.data.login.access_token);
-          router.push("/user");
+          result.login.user.type == "customer" ? router.push("/IndexUser") : router.push("/IndexSalon")
         } else {
           setErrors([]);
           setErrors((errors) => [
