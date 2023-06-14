@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+const IconPack = require("../public/icons/Icons");
+const Icons = new IconPack();
 export default function SalonSearchBar() {
   interface searchResults {
     searchResult: searchResult;
@@ -34,15 +36,13 @@ export default function SalonSearchBar() {
         const data = await response.json();
         const result = data.data;
         if (result) {
-          console.log(result);
-          setSearchResults([]); //Fix not stacking results
+          setSearchResults([]);
           result.findByName.forEach((result: searchResults) => {
-            setSearchResults([...searchResults, result]);
+            setSearchResults((searchResults) => [...searchResults, result]);
           });
         } else {
           setSearchResults([]);
         }
-        console.log(searchResults);
       }, 500);
     } else {
       setSearchResults([]);
@@ -51,9 +51,18 @@ export default function SalonSearchBar() {
 
   return (
     <>
-      <div className="relative">
-        <input onChange={(e) => handleSearch(e.target.value)} />
-        <div className="absolute top-10 w-full flex flex-col">
+      <div className="relative w-full">
+        <label className="relative">
+          <div className="absolute left-3 pt-2">
+            <Icons.Search />
+          </div>
+          <input
+            onChange={(e) => handleSearch(e.target.value)}
+            className="w-full px-10 text-sm ring-1 ring-gray-300 rounded-md p-2 focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
+            placeholder="Buscar"
+          />
+        </label>
+        <div className={`absolute ring-1 ring-gray-300 top-10 w-full flex flex-col bg-white rounded-md p-1 backdrop-blur-2xl ${searchResults.length == 0 && "hidden"}`}>
           {searchResults &&
             searchResults.map((result: any, index: number) => {
               return (
