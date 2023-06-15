@@ -20,11 +20,10 @@ export default function SalonSearchBar() {
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      handleSearch(inputValue)
-      console.log("User stopped writing");
-    }, 500); 
+      handleSearch(inputValue);
+    }, 500);
     return () => {
-      clearTimeout(timeoutId); 
+      clearTimeout(timeoutId);
     };
   }, [inputValue]);
 
@@ -58,10 +57,6 @@ export default function SalonSearchBar() {
     } else {
       setSearchResults([]);
     }
-  };
-  const handleBlur = () => {
-    console.log("Input deselected");
-    // Perform any actions or call functions here
   };
 
   return (
