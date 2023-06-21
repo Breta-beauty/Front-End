@@ -1,35 +1,65 @@
 "use client";
+import { useState, useRef, useEffect } from "react";
+import { getSalonById } from "@/services/Salons";
+import DaySelector from "./UI/DaySelector";
 import UploadImageSquare from "./UI/UploadImageSquare";
+import { convertToObject } from "typescript";
 const IconPack = require("../public/icons/Icons");
 const Icons = new IconPack();
-import { useState, useRef } from "react";
 interface ParentComponentProps {}
 interface OpenSalonDays {
-  moday: boolean;
-  tuesday: boolean;
-  wednesday: boolean;
-  thursday: boolean;
-  friday: boolean;
-  saturday: boolean;
-  sunday: boolean;
+  day:string, open:boolean, openFrom:string, openTo:string
 }
 
-const SalonCustomization: React.FC<ParentComponentProps> = () => {
+interface OpenSalonDays extends Array<OpenSalonDays>{}
+interface SalonData{
+  full_name:string,
+  type:string,
+  profile:{
+    description:string,
+    location?:string | null,
+    profilePicture:string,
+    services?:string[] | null,
+    wallpaper:string,
+  }
+}
+
+const SalonCustomization = () => {
+  const salonId:string = "7aeba000-26a9-426f-a8d3-a7e9f227376d"
+  const fetchSalonData = async() =>{
+    const request = await getSalonById(salonId)
+    setSalonDetails(request.data.user) 
+  }
+  useEffect(()=>{
+    fetchSalonData()
+  },[])
+
   const [imageSelected, setImageSelected] = useState<number>(0);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [logoImage, setLogoImage] = useState<string>("");
   const [coverImage, setCoverImage] = useState<string>("");
-  const [salonDetails, setSalonDetails] = useState<any>();
   const [openSalonDays, setOpenSalonDays] = useState<OpenSalonDays>();
+  const [salonDetails, setSalonDetails] = useState<any>();
+  
+
 
   const handleFileChange = (file: File | null, imageNumber: number) => {
-    // Do something with the selected file
     setImageSelected(imageNumber);
     console.log(imageNumber);
   };
 
   const handleLogoImage = (file: File | null) => {};
   const handleCoverImage = (file: File | null) => {};
+
+  const [dayState, setDayState] = useState<OpenSalonDays[]>([]);  
+  const handleDayChange = (
+    active: boolean | null,
+    name: string,
+    openFrom: string,
+    openTo: string
+  ) => {
+    console.log(active, name, openFrom, openTo);
+  };
 
   return (
     <>
@@ -65,6 +95,8 @@ const SalonCustomization: React.FC<ParentComponentProps> = () => {
               placeholder="Nombre del Salón..."
               className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
               type="teFxt"
+              value={salonDetails?.full_name}
+              onChange={(e)=> setSalonDetails({salonDetails:e.target.value})}
             />
           </label>
           <label
@@ -203,7 +235,35 @@ const SalonCustomization: React.FC<ParentComponentProps> = () => {
             Horario
           </div>
           <div className="flex flex-col justify-around gap-2 h-full">
-            <label className="relative inline-flex items-center mb-5 cursor-pointer">
+            <DaySelector 
+              day="Lunes"
+              handleDayChange={handleDayChange}
+              />
+            <DaySelector 
+              day="Martes"
+              handleDayChange={handleDayChange}
+              />
+            <DaySelector 
+              day="Miercoles"
+              handleDayChange={handleDayChange}
+              />
+            <DaySelector 
+              day="Jueves"
+              handleDayChange={handleDayChange}
+              />
+            <DaySelector 
+              day="Viernes"
+              handleDayChange={handleDayChange}
+              />
+            <DaySelector 
+              day="Sabado"
+              handleDayChange={handleDayChange}
+              />
+            <DaySelector 
+              day="Domingo"
+              handleDayChange={handleDayChange}
+              />
+            {/* <label className="relative inline-flex items-center mb-5 cursor-pointer">
               <input type="checkbox" value="" className="sr-only peer" />
               <div className="w-9 h-5 bg-breta-gray peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-breta-blue"></div>
               <span className="ml-3 text-sm font-medium text-breta-blue">
@@ -251,7 +311,7 @@ const SalonCustomization: React.FC<ParentComponentProps> = () => {
               <span className="ml-3 text-sm font-medium text-breta-blue">
                 Domingo
               </span>
-            </label>
+            </label> */}
           </div>
           <button className="text-sm py-5 ring-1 tracking-wide font-bold ring-gray-300 bg-breta-blue hover:bg-breta-dark-blue rounded-md px-6 focus:outline-0 placeholder:text-sm text-gray-100">
             Guardar Cambios
