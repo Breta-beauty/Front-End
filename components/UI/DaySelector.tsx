@@ -39,7 +39,7 @@ export default function DaySelector(props: DaySelectorProps) {
         />
         <div className="w-9 h-5 bg-breta-gray peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-breta-blue"></div>
         <span className="ml-3 text-sm font-medium text-breta-blue">
-          {props.day}
+          {props.day.charAt(0).toUpperCase() + props.day.slice(1)}
         </span>
       </label>
         <div className="flex gap-4 w-1/2">

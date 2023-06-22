@@ -7,41 +7,109 @@ import { convertToObject } from "typescript";
 const IconPack = require("../public/icons/Icons");
 const Icons = new IconPack();
 interface ParentComponentProps {}
-interface OpenSalonDays {
-  day:string, open:boolean, openFrom:string, openTo:string
+interface WeeklykSchedule {
+  lunes: {
+    open: boolean;
+    openFrom: string;
+    openTo: string;
+  };
+  martes: {
+    open: boolean;
+    openFrom: string;
+    openTo: string;
+  };
+  miercoles: {
+    open: boolean;
+    openFrom: string;
+    openTo: string;
+  };
+  jueves: {
+    open: boolean;
+    openFrom: string;
+    openTo: string;
+  };
+  viernes: {
+    open: boolean;
+    openFrom: string;
+    openTo: string;
+  };
+  sabado: {
+    open: boolean;
+    openFrom: string;
+    openTo: string;
+  };
+  domingo: {
+    open: boolean;
+    openFrom: string;
+    openTo: string;
+  };
 }
-
-interface OpenSalonDays extends Array<OpenSalonDays>{}
-interface SalonData{
-  full_name:string,
-  type:string,
-  profile:{
-    description:string,
-    location?:string | null,
-    profilePicture:string,
-    services?:string[] | null,
-    wallpaper:string,
-  }
-}
+//Fetch salons schedule
+const scheduleInitialValue: WeeklykSchedule = {
+  lunes: {
+    open: false,
+    openFrom: "0",
+    openTo: "0",
+  },
+  martes: {
+    open: false,
+    openFrom: "0",
+    openTo: "0",
+  },
+  miercoles: {
+    open: false,
+    openFrom: "0",
+    openTo: "0",
+  },
+  jueves: {
+    open: false,
+    openFrom: "0",
+    openTo: "0",
+  },
+  viernes: {
+    open: false,
+    openFrom: "0",
+    openTo: "0",
+  },
+  sabado: {
+    open: false,
+    openFrom: "0",
+    openTo: "0",
+  },
+  domingo: {
+    open: false,
+    openFrom: "0",
+    openTo: "0",
+  },
+};
 
 const SalonCustomization = () => {
-  const salonId:string = "7aeba000-26a9-426f-a8d3-a7e9f227376d"
-  const fetchSalonData = async() =>{
-    const request = await getSalonById(salonId)
-    setSalonDetails(request.data.user) 
+  const salonId: string = "7aeba000-26a9-426f-a8d3-a7e9f227376d";
+  const fetchSalonData = async () => {
+    const request = await getSalonById(salonId);
+    setSalonDetails(request.data.user);
+  };
+  useEffect(() => {
+    fetchSalonData();
+  }, []);
+  interface SalonData{
+    full_name:string,
+    type:string,
+    profile:{
+      description:string,
+      location?:string | null,
+      profilePicture:string,
+      services?:string[] | null,
+      wallpaper:string,
+    }
   }
-  useEffect(()=>{
-    fetchSalonData()
-  },[])
-
   const [imageSelected, setImageSelected] = useState<number>(0);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [logoImage, setLogoImage] = useState<string>("");
   const [coverImage, setCoverImage] = useState<string>("");
-  const [openSalonDays, setOpenSalonDays] = useState<OpenSalonDays>();
-  const [salonDetails, setSalonDetails] = useState<any>();
-  
-
+  const [weeklykSchedule, setWeeklykSchedule] =
+    useState<WeeklykSchedule>(scheduleInitialValue);
+  const [salonDetails, setSalonDetails] = useState<SalonData>({} as SalonData);
 
   const handleFileChange = (file: File | null, imageNumber: number) => {
     setImageSelected(imageNumber);
@@ -51,7 +119,6 @@ const SalonCustomization = () => {
   const handleLogoImage = (file: File | null) => {};
   const handleCoverImage = (file: File | null) => {};
 
-  const [dayState, setDayState] = useState<OpenSalonDays[]>([]);  
   const handleDayChange = (
     active: boolean | null,
     name: string,
@@ -65,7 +132,7 @@ const SalonCustomization = () => {
     <>
       <div className="flex gap-4 flex-nowrap w-full h-full p-8">
         <div className="flex flex-col justify-around gap-2 h-full w-1/3 p-4 shadow-lg shadow-breta-blue/40 border-2 border-gray-300 rounded-xl">
-        <label
+          <label
             className="block my-0 mx-auto justify-center shrink w-1/2 text-breta-blue text-sm font-semibold leading-6 select-none"
             htmlFor=""
           >
@@ -95,8 +162,10 @@ const SalonCustomization = () => {
               placeholder="Nombre del Salón..."
               className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
               type="teFxt"
-              value={salonDetails?.full_name}
-              onChange={(e)=> setSalonDetails({salonDetails:e.target.value})}
+              value={salonDetails.full_name ? salonDetails.full_name  : ""}
+              onChange={(e) =>
+                setSalonDetails({...salonDetails,full_name:e.target.value})
+              }
             />
           </label>
           <label
@@ -235,34 +304,13 @@ const SalonCustomization = () => {
             Horario
           </div>
           <div className="flex flex-col justify-around gap-2 h-full">
-            <DaySelector 
-              day="Lunes"
-              handleDayChange={handleDayChange}
-              />
-            <DaySelector 
-              day="Martes"
-              handleDayChange={handleDayChange}
-              />
-            <DaySelector 
-              day="Miercoles"
-              handleDayChange={handleDayChange}
-              />
-            <DaySelector 
-              day="Jueves"
-              handleDayChange={handleDayChange}
-              />
-            <DaySelector 
-              day="Viernes"
-              handleDayChange={handleDayChange}
-              />
-            <DaySelector 
-              day="Sabado"
-              handleDayChange={handleDayChange}
-              />
-            <DaySelector 
-              day="Domingo"
-              handleDayChange={handleDayChange}
-              />
+            <DaySelector day="lunes" handleDayChange={handleDayChange} />
+            <DaySelector day="martes" handleDayChange={handleDayChange} />
+            <DaySelector day="miercoles" handleDayChange={handleDayChange} />
+            <DaySelector day="jueves" handleDayChange={handleDayChange} />
+            <DaySelector day="viernes" handleDayChange={handleDayChange} />
+            <DaySelector day="sabado" handleDayChange={handleDayChange} />
+            <DaySelector day="domingo" handleDayChange={handleDayChange} />
             {/* <label className="relative inline-flex items-center mb-5 cursor-pointer">
               <input type="checkbox" value="" className="sr-only peer" />
               <div className="w-9 h-5 bg-breta-gray peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-breta-blue"></div>
