@@ -7,6 +7,9 @@ export async function getSalonById(id: string) {
   const graphqlQuerry: string = `{
         user(user_id : "${id}"){
         full_name
+        email
+        cellphone
+        type
         type
            profile{
           services

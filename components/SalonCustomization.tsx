@@ -1,12 +1,14 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import { getSalonById } from "@/services/Salons";
+import { SendLogo } from "@/services/Images";
+import { ChangeEvent } from "react";
 import DaySelector from "./UI/DaySelector";
 import UploadImageSquare from "./UI/UploadImageSquare";
 import { convertToObject } from "typescript";
 const IconPack = require("../public/icons/Icons");
 const Icons = new IconPack();
-interface ParentComponentProps {}
 interface WeeklykSchedule {
   lunes: {
     open: boolean;
@@ -82,41 +84,74 @@ const scheduleInitialValue: WeeklykSchedule = {
     openTo: "0",
   },
 };
-
+interface SalonData {
+  full_name: string;
+  type: string;
+  email: string;
+  cellphone: string;
+  profile: {
+    description: string;
+    location?: string | null;
+    profilePicture: string;
+    services?: string[] | null;
+    wallpaper: string;
+    reponsable: string;
+  };
+}
+interface SalonLocation {
+  street: string;
+  city: string;
+  interiorNumber: string;
+  exteriorNumber: string;
+  postalCode: string;
+}
 const SalonCustomization = () => {
   const salonId: string = "7aeba000-26a9-426f-a8d3-a7e9f227376d";
+
+  useEffect(() => {
+    fetchSalonData();
+  }, []);
+
+  const [imageSelected, setImageSelected] = useState<number>(0);
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [logoImage, setLogoImage] = useState<File | null>(null);
+  const [imageTest, setImageTest] = useState<string>("");
+  const [coverImage, setCoverImage] = useState<string>("");
+  const [weeklykSchedule, setWeeklykSchedule] =
+    useState<WeeklykSchedule>(scheduleInitialValue);
+  const [salonLocation, setSalonLocation] = useState<SalonLocation>(
+    {} as SalonLocation
+  );
+  const [salonDetails, setSalonDetails] = useState<SalonData>({} as SalonData);
+
   const fetchSalonData = async () => {
     const request = await getSalonById(salonId);
     setSalonDetails(request.data.user);
   };
-  useEffect(() => {
-    fetchSalonData();
-  }, []);
-  interface SalonData{
-    full_name:string,
-    type:string,
-    profile:{
-      description:string,
-      location?:string | null,
-      profilePicture:string,
-      services?:string[] | null,
-      wallpaper:string,
-    }
-  }
-  const [imageSelected, setImageSelected] = useState<number>(0);
-  const [galleryImages, setGalleryImages] = useState<string[]>([]);
-  const [logoImage, setLogoImage] = useState<string>("");
-  const [coverImage, setCoverImage] = useState<string>("");
-  const [weeklykSchedule, setWeeklykSchedule] =
-    useState<WeeklykSchedule>(scheduleInitialValue);
-  const [salonDetails, setSalonDetails] = useState<SalonData>({} as SalonData);
 
   const handleFileChange = (file: File | null, imageNumber: number) => {
     setImageSelected(imageNumber);
     console.log(imageNumber);
   };
 
-  const handleLogoImage = (file: File | null) => {};
+  const handleLogoImage = async (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const image: File = e.target.files[0];
+      setLogoImage(image);
+    }
+  };
+  const sendImage = async() =>{
+    if(logoImage){
+      try{
+        const imageUrl = await SendLogo(logoImage, salonId)
+        console.log(imageUrl)
+        setLogoImage(imageUrl)
+
+      }catch(err){
+        console.log(err)
+      }
+    }
+  }
   const handleCoverImage = (file: File | null) => {};
 
   const handleDayChange = (
@@ -125,7 +160,15 @@ const SalonCustomization = () => {
     openFrom: string,
     openTo: string
   ) => {
-    console.log(active, name, openFrom, openTo);
+    setWeeklykSchedule((prevSchedule) => ({
+      ...prevSchedule,
+      [name]: {
+        ...prevSchedule[name as keyof WeeklykSchedule],
+        open: active,
+        openFrom: openFrom,
+        openTo: openTo,
+      },
+    }));
   };
 
   return (
@@ -134,25 +177,25 @@ const SalonCustomization = () => {
         <div className="flex flex-col justify-around gap-2 h-full w-1/3 p-4 shadow-lg shadow-breta-blue/40 border-2 border-gray-300 rounded-xl">
           <label
             className="block my-0 mx-auto justify-center shrink w-1/2 text-breta-blue text-sm font-semibold leading-6 select-none"
-            htmlFor=""
+            htmlFor="ProfilePictureUpload"
           >
             Asigna un Logotipo.
             <label
               className="flex flex-col relative aspect-square text-breta-blue text-sm font-semibold leading-6 border-2 border-breta-blue border-dashed rounded-lg cursor-pointer"
-              htmlFor="ProfilePictureUpload"
             >
               <div className="w-full h-full bg-breta-light-gray flex items-center justify-center">
                 <Icons.AddImage />
               </div>
-              <input
-                className="hidden"
-                name="ProfilePictureUpload"
-                placeholder=""
-                type="file"
-                onChange={() => handleLogoImage}
-              />
+              <input className="hidden" name="ProfilePictureUpload" type="file" onChange={handleLogoImage} />
             </label>
+            <button onClick={()=>sendImage()}>Send</button>
+
           </label>
+          <div className="h-64 w-64">
+        <img src={salonDetails.profile.profilePicture ? salonDetails.profile.profilePicture : ""} className="w-full h-full" />
+
+          </div>
+
           <label
             className="relative text-breta-blue block text-sm font-semibold leading-6 select-none"
             htmlFor=""
@@ -162,9 +205,9 @@ const SalonCustomization = () => {
               placeholder="Nombre del Salón..."
               className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
               type="teFxt"
-              value={salonDetails.full_name ? salonDetails.full_name  : ""}
+              value={salonDetails.full_name ? salonDetails.full_name : ""}
               onChange={(e) =>
-                setSalonDetails({...salonDetails,full_name:e.target.value})
+                setSalonDetails({ ...salonDetails, full_name: e.target.value })
               }
             />
           </label>
@@ -176,7 +219,11 @@ const SalonCustomization = () => {
             <input
               placeholder="Número de contacto... "
               className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
-              type="text"
+              type="number"
+              value={salonDetails.cellphone ? salonDetails.cellphone : ""}
+              onChange={(e) =>
+                setSalonDetails({ ...salonDetails, cellphone: e.target.value })
+              }
             />
           </label>
           <label
@@ -188,6 +235,10 @@ const SalonCustomization = () => {
               placeholder="Correo electrónico..."
               className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
               type="text"
+              value={salonDetails.email ? salonDetails.email : ""}
+              onChange={(e) =>
+                setSalonDetails({ ...salonDetails, email: e.target.value })
+              }
             />
           </label>
           <label
@@ -199,6 +250,10 @@ const SalonCustomization = () => {
               placeholder="Administrador..."
               className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
               type="text"
+              value={salonDetails.full_name ? salonDetails.full_name : ""}
+              onChange={(e) =>
+                setSalonDetails({ ...salonDetails, full_name: e.target.value })
+              }
             />
           </label>
           <label
@@ -210,6 +265,10 @@ const SalonCustomization = () => {
               placeholder="Calle/Avenida/Andador..."
               className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
               type="text"
+              value={salonLocation.street ? salonLocation.street : ""}
+              onChange={(e) =>
+                setSalonLocation({ ...salonLocation, street: e.target.value })
+              }
             />
           </label>
           <label
@@ -221,6 +280,10 @@ const SalonCustomization = () => {
               placeholder="Ciudad..."
               className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
               type="text"
+              value={salonLocation.city ? salonLocation.city : ""}
+              onChange={(e) =>
+                setSalonLocation({ ...salonLocation, city: e.target.value })
+              }
             />
           </label>
           <div className="flex gap-4">
@@ -233,6 +296,17 @@ const SalonCustomization = () => {
                 placeholder="Ext..."
                 className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-1 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
                 type="text"
+                value={
+                  salonLocation.exteriorNumber
+                    ? salonLocation.exteriorNumber
+                    : ""
+                }
+                onChange={(e) =>
+                  setSalonLocation({
+                    ...salonLocation,
+                    exteriorNumber: e.target.value,
+                  })
+                }
               />
             </label>
             <label
@@ -244,6 +318,17 @@ const SalonCustomization = () => {
                 placeholder="Int..."
                 className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-1 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
                 type="text"
+                value={
+                  salonLocation.interiorNumber
+                    ? salonLocation.interiorNumber
+                    : ""
+                }
+                onChange={(e) =>
+                  setSalonLocation({
+                    ...salonLocation,
+                    interiorNumber: e.target.value,
+                  })
+                }
               />
             </label>
             <label
@@ -255,6 +340,13 @@ const SalonCustomization = () => {
                 placeholder="C.P."
                 className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-1 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
                 type="text"
+                value={salonLocation.postalCode ? salonLocation.postalCode : ""}
+                onChange={(e) =>
+                  setSalonLocation({
+                    ...salonLocation,
+                    postalCode: e.target.value,
+                  })
+                }
               />
             </label>
           </div>
@@ -267,14 +359,14 @@ const SalonCustomization = () => {
             Asigna una Portada
             <label
               className="flex flex-col relative aspect-video text-breta-blue text-sm font-semibold leading-6 border-2 border-breta-blue border-dashed rounded-lg cursor-pointer"
-              htmlFor="ProfilePictureUpload"
+              htmlFor="WallpaperUpload"
             >
               <div className="w-full h-full bg-breta-light-gray flex items-center justify-center">
                 <Icons.AddImage />
               </div>
               <input
                 className="hidden"
-                name="ProfilePictureUpload"
+                name="WallpaperUpload"
                 placeholder=""
                 type="file"
                 onChange={() => handleCoverImage}
@@ -311,55 +403,6 @@ const SalonCustomization = () => {
             <DaySelector day="viernes" handleDayChange={handleDayChange} />
             <DaySelector day="sabado" handleDayChange={handleDayChange} />
             <DaySelector day="domingo" handleDayChange={handleDayChange} />
-            {/* <label className="relative inline-flex items-center mb-5 cursor-pointer">
-              <input type="checkbox" value="" className="sr-only peer" />
-              <div className="w-9 h-5 bg-breta-gray peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-breta-blue"></div>
-              <span className="ml-3 text-sm font-medium text-breta-blue">
-                Lunes
-              </span>
-            </label>
-            <label className="relative inline-flex items-center mb-5 cursor-pointer">
-              <input type="checkbox" value="" className="sr-only peer" />
-              <div className="w-9 h-5 bg-breta-gray peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-breta-blue"></div>
-              <span className="ml-3 text-sm font-medium text-breta-blue">
-                Martes
-              </span>
-            </label>
-            <label className="relative inline-flex items-center mb-5 cursor-pointer">
-              <input type="checkbox" value="" className="sr-only peer" />
-              <div className="w-9 h-5 bg-breta-gray peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-breta-blue"></div>
-              <span className="ml-3 text-sm font-medium text-breta-blue">
-                Miercoles
-              </span>
-            </label>
-            <label className="relative inline-flex items-center mb-5 cursor-pointer">
-              <input type="checkbox" value="" className="sr-only peer" />
-              <div className="w-9 h-5 bg-breta-gray peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-breta-blue"></div>
-              <span className="ml-3 text-sm font-medium text-breta-blue">
-                Jueves
-              </span>
-            </label>
-            <label className="relative inline-flex items-center mb-5 cursor-pointer">
-              <input type="checkbox" value="" className="sr-only peer" />
-              <div className="w-9 h-5 bg-breta-gray peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-breta-blue"></div>
-              <span className="ml-3 text-sm font-medium text-breta-blue">
-                Viernes
-              </span>
-            </label>
-            <label className="relative inline-flex items-center mb-5 cursor-pointer">
-              <input type="checkbox" value="" className="sr-only peer" />
-              <div className="w-9 h-5 bg-breta-gray peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-breta-blue"></div>
-              <span className="ml-3 text-sm font-medium text-breta-blue">
-                Sabado
-              </span>
-            </label>
-            <label className="relative inline-flex items-center mb-5 cursor-pointer">
-              <input type="checkbox" value="" className="sr-only peer" />
-              <div className="w-9 h-5 bg-breta-gray peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-breta-blue"></div>
-              <span className="ml-3 text-sm font-medium text-breta-blue">
-                Domingo
-              </span>
-            </label> */}
           </div>
           <button className="text-sm py-5 ring-1 tracking-wide font-bold ring-gray-300 bg-breta-blue hover:bg-breta-dark-blue rounded-md px-6 focus:outline-0 placeholder:text-sm text-gray-100">
             Guardar Cambios
