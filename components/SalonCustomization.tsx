@@ -109,7 +109,7 @@ const SalonCustomization = () => {
   const salonId: string = "7aeba000-26a9-426f-a8d3-a7e9f227376d";
 
   const [imageGalery, setImageGalery] = useState<File[]>([]);
-  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [galleryStringImages, setGalleryStringImages] = useState<string[]>([]);
   const [logoImage, setLogoImage] = useState<File | null>(null);
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [imageTest, setImageTest] = useState<string>("");
@@ -127,7 +127,6 @@ const SalonCustomization = () => {
   const fetchSalonData = async () => {
     const request = await getSalonById(salonId);
     setSalonDetails(request.data.user);
-    console.log(salonDetails.profile);
   };
   const handleImageUpload = (
     e: ChangeEvent<HTMLInputElement>,
@@ -150,18 +149,23 @@ const SalonCustomization = () => {
     newImage: File | null,
     imageIndex: number
   ) => {
-    if (newImage !== null) {
-      if (imageGalery[imageIndex] === null) {
-        setImageGalery([...imageGalery, newImage]);
+    if (newImage != null) {
+      if (imageGalery.length == 0) {
+        setImageGalery([...imageGalery,newImage])
       } else {
-        const newImageArray = imageGalery.map((image, index) => {
-          if (imageIndex === index) {
-            return newImage;
-          } else {
-            return image;
+        const newGalleryArray = imageGalery.map((image,index)=>{
+          if(imageIndex == index){
+            return newImage
+          }else{
+            return image
           }
-        });
-        setImageGalery(newImageArray);
+        })
+        console.log(newGalleryArray,imageGalery)
+        if(newGalleryArray == imageGalery){
+          setImageGalery([...imageGalery,newImage])
+        }else{
+          setImageGalery(newGalleryArray)
+        }
       }
     }
   };
