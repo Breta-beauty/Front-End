@@ -1,26 +1,19 @@
 "use client";
-import { useRef } from "react";
-import { ChangeEvent } from "react";
 interface DaySelectorProps {
   day: string;
   handleDayChange: (
-    active: boolean | null,
-    name: string,
-    openFrom: string,
-    openTo: string
+    key:string,
+    type: string,
+    event : boolean | string,
   ) => void;
 }
 export default function DaySelector(props: DaySelectorProps) {
-  const fromHour = useRef("");
-  const toHour = useRef("");
-  const active = useRef<boolean>(false);
 
-  const handleChanges = (e: ChangeEvent) => {
+  const handleChanges = (event: boolean | string, type:string) => {
     props.handleDayChange(
-      active.current,
       props.day,
-      fromHour.current,
-      toHour.current
+      type,
+      event
     );
   };
   return (
@@ -28,12 +21,7 @@ export default function DaySelector(props: DaySelectorProps) {
     <div className="flex items-center justify-center gap-4 w-full">
       <label className="relative inline-flex items-center cursor-pointer w-1/2">
         <input
-          onChange={(e) => {
-            active.current == false
-              ? (active.current = true)
-              : (active.current = false);
-            handleChanges(e);
-          }}
+          onChange={(e) =>handleChanges(e.target.checked, "day")}
           type="checkbox"
           className="sr-only peer"
         />
@@ -46,18 +34,12 @@ export default function DaySelector(props: DaySelectorProps) {
           <input
             type="text"
             className="text-sm ring-1 ring-gray-300 rounded-md p-1 w-1/2 focus:outline-0"
-            onChange={(e) => {
-              fromHour.current = e.target.value;
-              handleChanges(e);
-            }}
+            onChange={e =>handleChanges(e.target.value, "from")}
           />
           <input
             type="text"
             className="text-sm ring-1 ring-gray-300 rounded-md p-1 w-1/2 focus:outline-0"
-            onChange={(e) => {
-              toHour.current = e.target.value;
-              handleChanges(e);
-            }}
+            onChange={e =>handleChanges(e.target.value, "to")}
           />
         </div>
     </div>

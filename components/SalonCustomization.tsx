@@ -92,7 +92,7 @@ interface SalonData {
   profile: {
     description: string;
     location?: string | null;
-    profilePicture: string;
+    profile_picture: string;
     services?: string[] | null;
     wallpaper: string;
     reponsable: string;
@@ -108,15 +108,11 @@ interface SalonLocation {
 const SalonCustomization = () => {
   const salonId: string = "7aeba000-26a9-426f-a8d3-a7e9f227376d";
 
-  useEffect(() => {
-    fetchSalonData();
-  }, []);
-
-  const [imageSelected, setImageSelected] = useState<number>(0);
+  const [imageGalery, setImageGalery] = useState<File[]>([]);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [logoImage, setLogoImage] = useState<File | null>(null);
+  const [coverImage, setCoverImage] = useState<File | null>(null);
   const [imageTest, setImageTest] = useState<string>("");
-  const [coverImage, setCoverImage] = useState<string>("");
   const [weeklykSchedule, setWeeklykSchedule] =
     useState<WeeklykSchedule>(scheduleInitialValue);
   const [salonLocation, setSalonLocation] = useState<SalonLocation>(
@@ -124,51 +120,98 @@ const SalonCustomization = () => {
   );
   const [salonDetails, setSalonDetails] = useState<SalonData>({} as SalonData);
 
+  useEffect(() => {
+    fetchSalonData();
+  }, []);
+
   const fetchSalonData = async () => {
     const request = await getSalonById(salonId);
     setSalonDetails(request.data.user);
+    console.log(salonDetails.profile);
   };
-
-  const handleFileChange = (file: File | null, imageNumber: number) => {
-    setImageSelected(imageNumber);
-    console.log(imageNumber);
-  };
-
-  const handleLogoImage = async (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const image: File = e.target.files[0];
-      setLogoImage(image);
-    }
-  };
-  const sendImage = async() =>{
-    if(logoImage){
-      try{
-        const imageUrl = await SendLogo(logoImage, salonId)
-        console.log(imageUrl)
-        setLogoImage(imageUrl)
-
-      }catch(err){
-        console.log(err)
+  const handleImageUpload = (
+    e: ChangeEvent<HTMLInputElement>,
+    type: string
+  ) => {
+    if (type === "wallpaper") {
+      if (e.target.files && e.target.files[0]) {
+        const image: File = e.target.files[0];
+        setCoverImage(image);
+      }
+    } else {
+      if (e.target.files && e.target.files[0]) {
+        const image: File = e.target.files[0];
+        setLogoImage(image);
       }
     }
-  }
-  const handleCoverImage = (file: File | null) => {};
+  };
+
+  const handleImageGaleryUpload = (
+    newImage: File | null,
+    imageIndex: number
+  ) => {
+    if (newImage !== null) {
+      if (imageGalery[imageIndex] === null) {
+        setImageGalery([...imageGalery, newImage]);
+      } else {
+        const newImageArray = imageGalery.map((image, index) => {
+          if (imageIndex === index) {
+            return newImage;
+          } else {
+            return image;
+          }
+        });
+        setImageGalery(newImageArray);
+      }
+    }
+  };
+
+  const sendImage = async () => {
+    if (logoImage) {
+      try {
+        const imageUrl = await SendLogo(logoImage, salonId);
+        console.log(imageUrl);
+        setLogoImage(imageUrl);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  };
 
   const handleDayChange = (
-    active: boolean | null,
-    name: string,
-    openFrom: string,
-    openTo: string
+    key: string,
+    type: string,
+    event: boolean | string
   ) => {
-    setWeeklykSchedule((prevSchedule) => ({
-      ...prevSchedule,
-      [name]: {
-        ...prevSchedule[name as keyof WeeklykSchedule],
-        open: active,
-        openFrom: openFrom,
-        openTo: openTo,
-      },
-    }));
+    switch (type) {
+      case "day":
+        setWeeklykSchedule((prevSchedule) => ({
+          ...prevSchedule,
+          [key]: {
+            ...prevSchedule[key as keyof WeeklykSchedule],
+            open: event,
+          },
+        }));
+        break;
+      case "from":
+        setWeeklykSchedule((prevSchedule) => ({
+          ...prevSchedule,
+          [key]: {
+            ...prevSchedule[key as keyof WeeklykSchedule],
+            openFrom: event,
+          },
+        }));
+        break;
+      case "to":
+        setWeeklykSchedule((prevSchedule) => ({
+          ...prevSchedule,
+          [key]: {
+            ...prevSchedule[key as keyof WeeklykSchedule],
+            openTo: event,
+          },
+        }));
+        break;
+    }
   };
 
   return (
@@ -180,22 +223,40 @@ const SalonCustomization = () => {
             htmlFor="ProfilePictureUpload"
           >
             Asigna un Logotipo.
-            <label
-              className="flex flex-col relative aspect-square text-breta-blue text-sm font-semibold leading-6 border-2 border-breta-blue border-dashed rounded-lg cursor-pointer"
-            >
-              <div className="w-full h-full bg-breta-light-gray flex items-center justify-center">
-                <Icons.AddImage />
-              </div>
-              <input className="hidden" name="ProfilePictureUpload" type="file" onChange={handleLogoImage} />
-            </label>
-            <button onClick={()=>sendImage()}>Send</button>
-
+            {salonDetails.profile && salonDetails.profile.profile_picture ? (
+              <>
+                <label className="flex flex-col relative aspect-square text-breta-blue text-sm font-semibold leading-6 cursor-pointer">
+                  <div className="w-full h-full bg-breta-light-gray flex items-center justify-center rounded-lg">
+                    <img
+                      src={salonDetails.profile.profile_picture}
+                      alt="Profile Picture"
+                      className="rounded-lg"
+                    />
+                  </div>
+                  <input
+                    className="hidden"
+                    name="ProfilePictureUpload"
+                    type="file"
+                    onChange={(e) => handleImageUpload(e, "logo")}
+                  />
+                </label>
+              </>
+            ) : (
+              <>
+                <label className="flex flex-col relative aspect-square text-breta-blue text-sm font-semibold leading-6 cursor-pointer border-2 border-breta-blue border-dashed rounded-lg">
+                  <div className="w-full h-full bg-breta-light-gray flex items-center justify-center">
+                    <Icons.AddImage />
+                  </div>
+                  <input
+                    className="hidden"
+                    name="ProfilePictureUpload"
+                    type="file"
+                    onChange={(e) => handleImageUpload(e, "logo")}
+                  />
+                </label>
+              </>
+            )}
           </label>
-          <div className="h-64 w-64">
-        <img src={salonDetails.profile.profilePicture ? salonDetails.profile.profilePicture : ""} className="w-full h-full" />
-
-          </div>
-
           <label
             className="relative text-breta-blue block text-sm font-semibold leading-6 select-none"
             htmlFor=""
@@ -352,27 +413,40 @@ const SalonCustomization = () => {
           </div>
         </div>
         <div className="flex flex-col justify-around gap-2 h-full w-1/3 p-4 shadow-lg shadow-breta-blue/40 border-2 border-gray-300 rounded-xl">
-          <label
-            className="block my-0 mx-auto justify-center shrink w-full text-breta-blue text-sm font-semibold leading-6 select-none"
-            htmlFor=""
-          >
-            Asigna una Portada
-            <label
-              className="flex flex-col relative aspect-video text-breta-blue text-sm font-semibold leading-6 border-2 border-breta-blue border-dashed rounded-lg cursor-pointer"
-              htmlFor="WallpaperUpload"
-            >
-              <div className="w-full h-full bg-breta-light-gray flex items-center justify-center">
-                <Icons.AddImage />
-              </div>
-              <input
-                className="hidden"
-                name="WallpaperUpload"
-                placeholder=""
-                type="file"
-                onChange={() => handleCoverImage}
-              />
-            </label>
-          </label>
+          {salonDetails.profile && salonDetails.profile.profile_picture ? (
+            <>
+              <label className="flex flex-col relative aspect-video text-breta-blue text-sm font-semibold leading-6 rounded-lg cursor-pointer">
+                <div className="w-full h-full bg-breta-light-gray flex items-center justify-center rounded-lg">
+                  <img
+                    src={salonDetails.profile.wallpaper}
+                    alt="Profile Picture"
+                    className="rounded-lg"
+                  />
+                </div>
+                <input
+                  className="hidden"
+                  name="ProfilePictureUpload"
+                  type="file"
+                  onChange={(e) => handleImageUpload(e, "wallpaper")}
+                />
+              </label>
+            </>
+          ) : (
+            <>
+              <label className="flex flex-col relative aspect-video text-breta-blue text-sm font-semibold leading-6 border-2 border-breta-blue border-dashed rounded-lg cursor-pointer">
+                <div className="w-full h-full bg-breta-light-gray flex items-center justify-center">
+                  <Icons.AddImage />
+                </div>
+                <input
+                  className="hidden"
+                  name="ProfilePictureUpload"
+                  type="file"
+                  onChange={(e) => handleImageUpload(e, "wallpaper")}
+                />
+              </label>
+            </>
+          )}
+
           <label
             className="relative text-breta-blue block text-sm font-semibold leading-6 select-none"
             htmlFor=""
@@ -385,7 +459,7 @@ const SalonCustomization = () => {
                   <UploadImageSquare
                     key={index}
                     imageNumber={index}
-                    onFileChange={handleFileChange}
+                    onFileChange={handleImageGaleryUpload}
                   />
                 ))}
             </div>
