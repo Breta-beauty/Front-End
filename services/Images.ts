@@ -1,9 +1,8 @@
-import { data } from "autoprefixer";
-
 const url: string = "https://breta-api.up.railway.app/graphql";
 const headers = {
   "content-type": "application/json",
 };
+
 export async function SendLogo(image: File, id: string) {
   const formData = new FormData()
   formData.append("file", image);
@@ -33,4 +32,7 @@ export async function SendLogo(image: File, id: string) {
   } catch (err) {
     console.log(err);
   }
+}
+export async function  SendGallery(){
+  
 }

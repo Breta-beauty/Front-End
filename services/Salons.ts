@@ -3,7 +3,7 @@ const headers = {
   "content-type": "application/json",
 };
 
-export async function getSalonById(id: string) {
+export async function getSalonById(id: string | undefined) {
   const graphqlQuerry: string = `{
         user(user_id : "${id}"){
         full_name
@@ -34,3 +34,4 @@ export async function getSalonById(id: string) {
     console.log(err);
   }
 }
+

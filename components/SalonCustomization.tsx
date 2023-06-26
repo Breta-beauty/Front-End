@@ -1,12 +1,10 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import { getSalonById } from "@/services/Salons";
-import { SendLogo } from "@/services/Images";
+import { SendLogo, SendGallery } from "@/services/Images";
 import { ChangeEvent } from "react";
 import DaySelector from "./UI/DaySelector";
 import UploadImageSquare from "./UI/UploadImageSquare";
-import { convertToObject } from "typescript";
 const IconPack = require("../public/icons/Icons");
 const Icons = new IconPack();
 interface WeeklykSchedule {
@@ -46,7 +44,6 @@ interface WeeklykSchedule {
     openTo: string;
   };
 }
-//Fetch salons schedule
 const scheduleInitialValue: WeeklykSchedule = {
   lunes: {
     open: false,
@@ -106,13 +103,11 @@ interface SalonLocation {
   postalCode: string;
 }
 const SalonCustomization = () => {
-  const salonId: string = "7aeba000-26a9-426f-a8d3-a7e9f227376d";
-
+  const salonId = process.env.NEXT_PUBLIC_TEST_USER;
   const [imageGalery, setImageGalery] = useState<File[]>([]);
   const [galleryStringImages, setGalleryStringImages] = useState<string[]>([]);
   const [logoImage, setLogoImage] = useState<File | null>(null);
   const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [imageTest, setImageTest] = useState<string>("");
   const [weeklykSchedule, setWeeklykSchedule] =
     useState<WeeklykSchedule>(scheduleInitialValue);
   const [salonLocation, setSalonLocation] = useState<SalonLocation>(
@@ -128,6 +123,7 @@ const SalonCustomization = () => {
     const request = await getSalonById(salonId);
     setSalonDetails(request.data.user);
   };
+
   const handleImageUpload = (
     e: ChangeEvent<HTMLInputElement>,
     type: string
@@ -150,35 +146,34 @@ const SalonCustomization = () => {
     imageIndex: number
   ) => {
     if (newImage != null) {
+      const imageBlob = URL.createObjectURL(newImage);
       if (imageGalery.length == 0) {
-        setImageGalery([...imageGalery,newImage])
+        setImageGalery([newImage]);
+        setGalleryStringImages([imageBlob]);
+      } else if (imageIndex + 1 > imageGalery.length) {
+        setImageGalery([...imageGalery, newImage]);
+        setGalleryStringImages([...galleryStringImages, imageBlob]);
       } else {
-        const newGalleryArray = imageGalery.map((image,index)=>{
-          if(imageIndex == index){
-            return newImage
-          }else{
-            return image
+        const newGalleryArray = imageGalery.map((image, index) => {
+          if (imageIndex == index) {
+            return newImage;
+          } else {
+            return image;
           }
-        })
-        console.log(newGalleryArray,imageGalery)
-        if(newGalleryArray == imageGalery){
-          setImageGalery([...imageGalery,newImage])
-        }else{
-          setImageGalery(newGalleryArray)
-        }
+        });
+        const newGalleryStringImages = galleryStringImages.map(
+          (image, index) => {
+            if (imageIndex == index) {
+              return imageBlob;
+            } else {
+              return image;
+            }
+          }
+        );
+        setImageGalery(newGalleryArray);
+        setGalleryStringImages(newGalleryStringImages);
       }
-    }
-  };
-
-  const sendImage = async () => {
-    if (logoImage) {
-      try {
-        const imageUrl = await SendLogo(logoImage, salonId);
-        console.log(imageUrl);
-        setLogoImage(imageUrl);
-      } catch (err) {
-        console.log(err);
-      }
+      console.log(imageGalery);
     }
   };
 
@@ -360,7 +355,7 @@ const SalonCustomization = () => {
               <input
                 placeholder="Ext..."
                 className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-1 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
-                type="text"
+                type="number"
                 value={
                   salonLocation.exteriorNumber
                     ? salonLocation.exteriorNumber
@@ -382,7 +377,7 @@ const SalonCustomization = () => {
               <input
                 placeholder="Int..."
                 className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-1 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
-                type="text"
+                type="number"
                 value={
                   salonLocation.interiorNumber
                     ? salonLocation.interiorNumber
@@ -404,7 +399,7 @@ const SalonCustomization = () => {
               <input
                 placeholder="C.P."
                 className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-1 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
-                type="text"
+                type="number"
                 value={salonLocation.postalCode ? salonLocation.postalCode : ""}
                 onChange={(e) =>
                   setSalonLocation({
@@ -416,58 +411,70 @@ const SalonCustomization = () => {
             </label>
           </div>
         </div>
-        <div className="flex flex-col justify-around gap-2 h-full w-1/3 p-4 shadow-lg shadow-breta-blue/40 border-2 border-gray-300 rounded-xl">
-          {salonDetails.profile && salonDetails.profile.profile_picture ? (
-            <>
-              <label className="flex flex-col relative aspect-video text-breta-blue text-sm font-semibold leading-6 rounded-lg cursor-pointer">
-                <div className="w-full h-full bg-breta-light-gray flex items-center justify-center rounded-lg">
-                  <img
-                    src={salonDetails.profile.wallpaper}
-                    alt="Profile Picture"
-                    className="rounded-lg"
+        <div className="flex flex-col justify-between h-full w-1/3 p-4 shadow-lg shadow-breta-blue/40 border-2 border-gray-300 rounded-xl">
+            {salonDetails.profile && salonDetails.profile.profile_picture ? (
+              <>
+                <label className="flex flex-col relative aspect-video text-breta-blue text-sm font-semibold leading-6 rounded-lg cursor-pointer">
+                  Asigna una Portada
+                  <div className="w-full h-full bg-breta-light-gray flex items-center justify-center rounded-lg">
+                    <img
+                      src={salonDetails.profile.wallpaper}
+                      alt="Profile Picture"
+                      className="rounded-lg"
+                    />
+                  </div>
+                  <input
+                    className="hidden"
+                    name="ProfilePictureUpload"
+                    type="file"
+                    onChange={(e) => handleImageUpload(e, "wallpaper")}
                   />
-                </div>
-                <input
-                  className="hidden"
-                  name="ProfilePictureUpload"
-                  type="file"
-                  onChange={(e) => handleImageUpload(e, "wallpaper")}
-                />
-              </label>
-            </>
-          ) : (
-            <>
-              <label className="flex flex-col relative aspect-video text-breta-blue text-sm font-semibold leading-6 border-2 border-breta-blue border-dashed rounded-lg cursor-pointer">
-                <div className="w-full h-full bg-breta-light-gray flex items-center justify-center">
-                  <Icons.AddImage />
-                </div>
-                <input
-                  className="hidden"
-                  name="ProfilePictureUpload"
-                  type="file"
-                  onChange={(e) => handleImageUpload(e, "wallpaper")}
-                />
-              </label>
-            </>
-          )}
-
-          <label
-            className="relative text-breta-blue block text-sm font-semibold leading-6 select-none"
-            htmlFor=""
-          >
-            Escoge hasta 9 fotografías para tu galería
-            <div className="grid grid-cols-3 gap-4">
-              {Array(9)
-                .fill(0)
-                .map((_, index) => (
-                  <UploadImageSquare
-                    key={index}
-                    imageNumber={index}
-                    onFileChange={handleImageGaleryUpload}
+                </label>
+              </>
+            ) : (
+              <>
+                <label className="flex flex-col relative aspect-video text-breta-blue text-sm font-semibold leading-6 border-2 border-breta-blue border-dashed rounded-lg cursor-pointer">
+                  <div className="w-full h-full bg-breta-light-gray flex items-center justify-center">
+                    <Icons.AddImage />
+                  </div>
+                  <input
+                    className="hidden"
+                    name="ProfilePictureUpload"
+                    type="file"
+                    onChange={(e) => handleImageUpload(e, "wallpaper")}
                   />
-                ))}
-            </div>
-          </label>
+                </label>
+              </>
+            )}
+            <label
+              className="text-breta-blue text-sm font-semibold leading-6 select-none flex-0"
+            >
+              Escoge hasta 9 fotografías para tu galería
+              <div className="grid grid-cols-3 gap-4">
+                {Array(9)
+                  .fill(0)
+                  .map((_, index) => (
+                    <>
+                      {galleryStringImages[index] == null ? (
+                        <UploadImageSquare
+                          key={index}
+                          imageNumber={index}
+                          onFileChange={handleImageGaleryUpload}
+                        />
+                      ) : (
+                        <>
+                          <UploadImageSquare
+                            image={galleryStringImages[index]}
+                            key={index}
+                            imageNumber={index}
+                            onFileChange={handleImageGaleryUpload}
+                          />
+                        </>
+                      )}
+                    </>
+                  ))}
+              </div>
+            </label>
         </div>
         <div className="flex flex-col justify-around gap-2 h-full w-1/3 p-4 shadow-lg shadow-breta-blue/40 border-2 border-gray-300 rounded-xl">
           <div className=" justify-center shrink w-full text-breta-blue text-sm font-semibold leading-6 select-none">

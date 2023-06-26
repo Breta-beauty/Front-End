@@ -16,12 +16,15 @@ export default function DaySelector(props: DaySelectorProps) {
       event
     );
   };
+  const handleDayChange = (event: boolean) => {
+    return event = true ? false : true
+  };
   return (
     <>
     <div className="flex items-center justify-center gap-4 w-full">
       <label className="relative inline-flex items-center cursor-pointer w-1/2">
         <input
-          onChange={(e) =>handleChanges(e.target.checked, "day")}
+          onChange={(e) =>{handleChanges(e.target.checked, "day");handleDayChange(e.target.checked)}}
           type="checkbox"
           className="sr-only peer"
         />
@@ -30,14 +33,14 @@ export default function DaySelector(props: DaySelectorProps) {
           {props.day.charAt(0).toUpperCase() + props.day.slice(1)}
         </span>
       </label>
-        <div className="flex gap-4 w-1/2">
+        <div className="flex gap-4 w-1/2" >
           <input
-            type="text"
+            type="number"
             className="text-sm ring-1 ring-gray-300 rounded-md p-1 w-1/2 focus:outline-0"
             onChange={e =>handleChanges(e.target.value, "from")}
           />
           <input
-            type="text"
+            type="number"
             className="text-sm ring-1 ring-gray-300 rounded-md p-1 w-1/2 focus:outline-0"
             onChange={e =>handleChanges(e.target.value, "to")}
           />

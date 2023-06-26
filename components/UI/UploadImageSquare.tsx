@@ -1,32 +1,42 @@
-'use client'
+"use client";
 import { ChangeEvent } from "react";
 const IconPack = require("../../public/icons/Icons");
 const Icons = new IconPack();
 
 interface UploadImageSquareProps {
-  imageNumber:number,
-  onFileChange: (file: File | null, imageNumber:number) => void;
+  imageNumber: number;
+  image?: string;
+  onFileChange: (file: File | null, imageNumber: number) => void;
 }
 
-const UploadImageSquare: React.FC<UploadImageSquareProps> = ({ imageNumber, onFileChange }) => {
-
+const UploadImageSquare: React.FC<UploadImageSquareProps> = ({
+  imageNumber,
+  onFileChange,
+  image,
+}) => {
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
     onFileChange(file || null, imageNumber);
   };
 
   return (
-    <label htmlFor={"ProfilePictureUpload"+imageNumber}>
+    <label htmlFor={"ProfilePictureUpload" + imageNumber}>
       <label
-        htmlFor={"ProfilePictureUpload"+imageNumber}
-        className="flex flex-col relative aspect-square text-breta-blue text-sm font-semibold leading-6 border-2 border-breta-blue border-dashed rounded-lg cursor-pointer"
+        htmlFor={"ProfilePictureUpload" + imageNumber}
+        className={"w-full items-center justify-center flex flex-col aspect-square text-breta-blue text-sm font-semibold leading-6 rounded-lg cursor-pointer  overflow-hidden" + (image ? "" : "border-2 border-breta-blue border-dashed bg-breta-light-gray")}
       >
-        <div className="w-full h-full bg-breta-light-gray flex items-center justify-center">
-          <Icons.AddImage />
-        </div>
+          {image ? (
+            <img
+              src={image}
+              className="rounded-lg object-fit"
+              alt={"Gallery Image" + imageNumber}
+            />
+          ) : (
+            <Icons.AddImage />
+          )}
         <input
-          id={"ProfilePictureUpload"+imageNumber}
-          name={"ProfilePictureUpload"+imageNumber}
+          id={"ProfilePictureUpload" + imageNumber}
+          name={"ProfilePictureUpload" + imageNumber}
           className="hidden"
           type="file"
           accept="image/*"
