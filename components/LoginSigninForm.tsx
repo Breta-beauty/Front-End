@@ -174,6 +174,44 @@ export default function LoginSigninForm() {
     hiddenStatus == true ? setHiddenStatus(false) : setHiddenStatus(true);
   };
 
+  const recoverPassword = async (email: string) => {
+    if (email == "") {
+      setErrors([]);
+      setErrors((errors) => [...errors, "Porfavor llene todos los campos"]);
+    } else {
+      const URL: string = "https://breta-api.up.railway.app/graphql";
+      const graphqlQuerry: string = `mutation{
+        requestForgotPassword(forgotPasswordInput:{
+                email: "${email}"
+            }){
+                email
+            }
+        }`;
+      const options = {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify({ query: graphqlQuerry }),
+      };
+      try {
+        const response = await fetch(URL, options);
+        const data = await response.json();
+        const result = data.data;
+        if (result != null) {
+          setFormState("login");
+          setErrors([]);
+        } else if (result == null) {
+          setErrors([]);
+          setErrors((errors) => [
+            ...errors,
+            data.errors[0].extensions.originalError.message,
+          ]);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  }
+
   return (
     <>
       {hiddenStatus == false && (
@@ -197,17 +235,25 @@ export default function LoginSigninForm() {
                       cuenta.
                     </div>
                   </>
-                ) : (
+                ) : <></>}
+
+                {formState == "login" ? (
                   <>
-                    <div className="text-2xl text-breta-dark-blue mb-2 font-bold">
-                      !Bienvenido de Nuevo¡
-                    </div>
+                  <div className="text-2xl text-breta-dark-blue mb-2 font-bold">!Bienvenido de Nuevo¡</div>
                     <div className="text-breta-dark-blue">
                       Nos da gusto verte de vuelta. Inicia sesión con tu cuenta
                       para comenzar.
                     </div>
                   </>
-                )}
+                ): <></>}
+                {formState == "forgotPassword" ? (
+                  <>
+                    <div className="text-2xl text-breta-dark-blue mb- font-bold">¿Olvidaste tu contraseña?</div>
+                    <div className="text-breta-dark-blue">
+                      Ingresa tu correo electronico para enviarte como cambiar de contraseña.
+                    </div>
+                  </>
+                ) : <></>}
               </div>
               <div className="visible md:hidden">
                 {formState == "signin"
@@ -556,9 +602,44 @@ export default function LoginSigninForm() {
                       placeholder="Mayor a 8 caracteres"
                     />
                   </div>
+                  <div className="mb-2 text-breta-blue font-light select-none text-center">
+                    <a
+                      className="font-bold cursor-pointer"
+                      onClick={() => {
+                        setFormState("forgotPassword")
+                        setErrors([])
+                      }}
+                    >
+                      ¿Olvidaste tu contraseña?
+                    </a>
+                  </div>
                 </>
               )}
-
+              {formState == "forgotPassword" && (
+                <>
+                <div>
+                    <label
+                      className="relative text-breta-blue block text-sm font-semibold leading-6 select-none"
+                      htmlFor="email"
+                    >
+                      Correo Electronico
+                      <div className="absolute left-3 top-8">
+                        <Icons.IconEmail />
+                      </div>
+                      <span className="w-20 h-1 mx-2 bg-breta-blue z-50"></span>
+                    </label>
+                    <input
+                      required
+                      onChange={(e) => (setEmailField(e.target.value))}
+                      type="email"
+                      name="email"
+                      className="w-full px-10 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
+                      placeholder="Ingresa tu correo electrónico"
+                      value={emailField}
+                    ></input>
+                  </div>
+                </>
+              )}
               {formState == "login" ? (
                 <button
                   type="button"
@@ -593,8 +674,10 @@ export default function LoginSigninForm() {
                     "Iniciar Sesión"
                   )}
                 </button>
-              ) : (
-                <button
+              ) : <></>}
+              {formState == "signin" ? (
+                <>
+                  <button
                   type="button"
                   onClick={(e) =>
                     SignIn(
@@ -611,7 +694,19 @@ export default function LoginSigninForm() {
                 >
                   Crear Cuenta
                 </button>
-              )}
+                </>
+              ): <></>}
+              {formState == "forgotPassword" ? (
+                <button
+                type="button"
+                onClick={(e) =>
+                  recoverPassword(emailField)
+                }
+                className="text-sm py-5 ring-1 tracking-wide font-bold ring-gray-300 bg-breta-blue hover:bg-breta-dark-blue rounded-md px-6 focus:outline-0 placeholder:text-sm text-gray-100"
+              >
+                Cambiar contraseña
+              </button>
+              ) : <></>}
             </div>
             <div className="flex flex-col">
               {errors && renderErrors(errors)}
