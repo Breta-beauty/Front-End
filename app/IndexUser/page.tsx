@@ -8,7 +8,7 @@ const Icons = new IconPack();
 import { useRouter } from "next/navigation";
 import BottomNavDrawer from "@/components/BottomNavDrawer";
 
-export default function UserPage() {
+export default function User() {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
   const [salons, setSalons] = useState<any>([]);

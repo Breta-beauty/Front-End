@@ -18,7 +18,6 @@ export async function getSalonById(id: string | undefined) {
           description
           location
         }
-       
       }
     }`;
   const options = {
