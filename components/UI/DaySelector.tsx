@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 interface DaySelectorProps {
   day: string;
   handleDayChange: (
@@ -8,7 +9,7 @@ interface DaySelectorProps {
   ) => void;
 }
 export default function DaySelector(props: DaySelectorProps) {
-
+  const [activeDay, setActiveDay] = useState<boolean>(false)
   const handleChanges = (event: boolean | string, type:string) => {
     props.handleDayChange(
       props.day,
@@ -17,7 +18,7 @@ export default function DaySelector(props: DaySelectorProps) {
     );
   };
   const handleDayChange = (event: boolean) => {
-    return event = true ? false : true
+    setActiveDay(event)
   };
   return (
     <>
@@ -35,12 +36,12 @@ export default function DaySelector(props: DaySelectorProps) {
       </label>
         <div className="flex gap-4 w-1/2" >
           <input
-            type="number"
+            type="time"
             className="text-sm ring-1 ring-gray-300 rounded-md p-1 w-1/2 focus:outline-0"
             onChange={e =>handleChanges(e.target.value, "from")}
           />
           <input
-            type="number"
+            type="time"
             className="text-sm ring-1 ring-gray-300 rounded-md p-1 w-1/2 focus:outline-0"
             onChange={e =>handleChanges(e.target.value, "to")}
           />

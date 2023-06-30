@@ -28,15 +28,24 @@ export default function SalonSearchBar() {
   }, [inputValue]);
 
   const handleSearch = async (input: String) => {
-    if (input != "") {
+    if (input.length>2 ) {
       setTimeout(async () => {
         const query = `{
-                      findByName(name: "${input}")
-                      {
-                          full_name
-                          type
-                      }
-                  }`;
+          findBy(findByInput: {
+            search_input: "${input}"
+            type: "salon"
+          }){
+            full_name
+            type
+            profile{
+              services
+              profile_picture
+          location
+
+            }
+           
+          }
+        }`;
         const options = {
           method: "POST",
           headers: headers,
@@ -45,15 +54,15 @@ export default function SalonSearchBar() {
         const response = await fetch(URL, options);
         const data = await response.json();
         const result = data.data;
-        if (result) {
+        if (result!=null) {
           setSearchResults([]);
-          result.findByName.forEach((result: searchResults) => {
+          result.findBy.forEach((result: searchResults) => {
             setSearchResults((searchResults) => [...searchResults, result]);
           });
         } else {
           setSearchResults([]);
         }
-      }, 500);
+      }, 300);
     } else {
       setSearchResults([]);
     }

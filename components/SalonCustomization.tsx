@@ -1,8 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import { getSalonById } from "@/services/Salons";
-import { SendLogo, SendGallery } from "@/services/Images";
+import { SendLogo, SendWallpaper } from "@/services/Images";
 import { ChangeEvent } from "react";
+import { UpdateSalon } from "@/services/Salons";
 import DaySelector from "./UI/DaySelector";
 import UploadImageSquare from "./UI/UploadImageSquare";
 const IconPack = require("../public/icons/Icons");
@@ -81,18 +82,17 @@ const scheduleInitialValue: WeeklykSchedule = {
     openTo: "0",
   },
 };
-interface SalonData {
+export interface SalonData {
   full_name: string;
   type: string;
   email: string;
   cellphone: string;
   profile: {
-    description: string;
-    location?: string | null;
+    location: SalonLocation;
     profile_picture: string;
-    services?: string[] | null;
     wallpaper: string;
-    reponsable: string;
+    schedule: WeeklykSchedule;
+    image_gallery: string[];
   };
 }
 interface SalonLocation {
@@ -103,11 +103,13 @@ interface SalonLocation {
   postalCode: string;
 }
 const SalonCustomization = () => {
-  const salonId = process.env.NEXT_PUBLIC_TEST_USER;
+  const salonId = "7aeba000-26a9-426f-a8d3-a7e9f227376d";
   const [imageGalery, setImageGalery] = useState<File[]>([]);
   const [galleryStringImages, setGalleryStringImages] = useState<string[]>([]);
   const [logoImage, setLogoImage] = useState<File | null>(null);
   const [coverImage, setCoverImage] = useState<File | null>(null);
+  const [logoImageString, setLogoImageString] = useState<string>("");
+  const [coverImageString, setCoverImageString] = useState<string>("");
   const [weeklykSchedule, setWeeklykSchedule] =
     useState<WeeklykSchedule>(scheduleInitialValue);
   const [salonLocation, setSalonLocation] = useState<SalonLocation>(
@@ -118,26 +120,41 @@ const SalonCustomization = () => {
   useEffect(() => {
     fetchSalonData();
   }, []);
+  useEffect(() => {
+    setSalonDetails((prevSalonDetails) => ({
+      ...prevSalonDetails,
+      ["profile"]: {
+        ...prevSalonDetails["profile"],
+        image_gallery: galleryStringImages,
+        location:salonLocation,
+        schedule:weeklykSchedule
+      },
+    }));
+    
+  }, [weeklykSchedule, galleryStringImages, salonLocation]);
 
   const fetchSalonData = async () => {
     const request = await getSalonById(salonId);
+    console.log(request)
     setSalonDetails(request.data.user);
   };
 
-  const handleImageUpload = (
+  const handleImageUpload = async (
     e: ChangeEvent<HTMLInputElement>,
     type: string
   ) => {
-    if (type === "wallpaper") {
-      if (e.target.files && e.target.files[0]) {
-        const image: File = e.target.files[0];
+    if (e.target.files && e.target.files[0]) {
+      const image: File = e.target.files[0];
+      if (type == "wallpaper") {
         setCoverImage(image);
+        const Wallpaper = await SendWallpaper(image as File, salonId);
+        setCoverImageString(Wallpaper);
+      } else {
+        setLogoImage(image);
+        const Logo = await SendLogo(image as File, salonId);
+        setLogoImageString(Logo);
       }
     } else {
-      if (e.target.files && e.target.files[0]) {
-        const image: File = e.target.files[0];
-        setLogoImage(image);
-      }
     }
   };
 
@@ -213,6 +230,22 @@ const SalonCustomization = () => {
     }
   };
 
+  const updateSalon = async () => {
+    try{
+      const response = await UpdateSalon(
+        salonDetails, salonId
+      );
+      if(response){
+        console.log("something")
+        await fetchSalonData()
+      }
+    }catch(err){
+      await fetchSalonData()
+      console.log(err)
+      return err
+    }
+  };
+
   return (
     <>
       <div className="flex gap-4 flex-nowrap w-full h-full p-8">
@@ -225,7 +258,7 @@ const SalonCustomization = () => {
             {salonDetails.profile && salonDetails.profile.profile_picture ? (
               <>
                 <label className="flex flex-col relative aspect-square text-breta-blue text-sm font-semibold leading-6 cursor-pointer">
-                  <div className="w-full h-full bg-breta-light-gray flex items-center justify-center rounded-lg">
+                  <div className="overflow-hidden w-full h-full bg-breta-light-gray flex items-center justify-center rounded-lg">
                     <img
                       src={salonDetails.profile.profile_picture}
                       alt="Profile Picture"
@@ -243,7 +276,7 @@ const SalonCustomization = () => {
             ) : (
               <>
                 <label className="flex flex-col relative aspect-square text-breta-blue text-sm font-semibold leading-6 cursor-pointer border-2 border-breta-blue border-dashed rounded-lg">
-                  <div className="w-full h-full bg-breta-light-gray flex items-center justify-center">
+                  <div className=" overflow-hidden w-full h-full bg-breta-light-gray flex items-center justify-center">
                     <Icons.AddImage />
                   </div>
                   <input
@@ -412,69 +445,67 @@ const SalonCustomization = () => {
           </div>
         </div>
         <div className="flex flex-col justify-between h-full w-1/3 p-4 shadow-lg shadow-breta-blue/40 border-2 border-gray-300 rounded-xl">
-            {salonDetails.profile && salonDetails.profile.profile_picture ? (
-              <>
-                <label className="flex flex-col relative aspect-video text-breta-blue text-sm font-semibold leading-6 rounded-lg cursor-pointer">
-                  Asigna una Portada
-                  <div className="w-full h-full bg-breta-light-gray flex items-center justify-center rounded-lg">
-                    <img
-                      src={salonDetails.profile.wallpaper}
-                      alt="Profile Picture"
-                      className="rounded-lg"
-                    />
-                  </div>
-                  <input
-                    className="hidden"
-                    name="ProfilePictureUpload"
-                    type="file"
-                    onChange={(e) => handleImageUpload(e, "wallpaper")}
+          {salonDetails.profile && salonDetails.profile.profile_picture ? (
+            <>
+              <label className="flex flex-col relative aspect-video text-breta-blue text-sm font-semibold leading-6 rounded-lg cursor-pointer">
+                Asigna una Portada
+                <div className="w-full h-full bg-breta-light-gray flex items-center justify-center rounded-lg">
+                  <img
+                    src={salonDetails.profile.wallpaper}
+                    alt="Profile Picture"
+                    className="rounded-lg"
                   />
-                </label>
-              </>
-            ) : (
-              <>
-                <label className="flex flex-col relative aspect-video text-breta-blue text-sm font-semibold leading-6 border-2 border-breta-blue border-dashed rounded-lg cursor-pointer">
-                  <div className="w-full h-full bg-breta-light-gray flex items-center justify-center">
-                    <Icons.AddImage />
-                  </div>
-                  <input
-                    className="hidden"
-                    name="ProfilePictureUpload"
-                    type="file"
-                    onChange={(e) => handleImageUpload(e, "wallpaper")}
-                  />
-                </label>
-              </>
-            )}
-            <label
-              className="text-breta-blue text-sm font-semibold leading-6 select-none flex-0"
-            >
-              Escoge hasta 9 fotografías para tu galería
-              <div className="grid grid-cols-3 gap-4">
-                {Array(9)
-                  .fill(0)
-                  .map((_, index) => (
-                    <>
-                      {galleryStringImages[index] == null ? (
+                </div>
+                <input
+                  className="hidden"
+                  name="WallpaperPictureUpload"
+                  type="file"
+                  onChange={(e) => handleImageUpload(e, "wallpaper")}
+                />
+              </label>
+            </>
+          ) : (
+            <>
+              <label className="flex flex-col relative aspect-video text-breta-blue text-sm font-semibold leading-6 border-2 border-breta-blue border-dashed rounded-lg cursor-pointer">
+                <div className="w-full h-full bg-breta-light-gray flex items-center justify-center">
+                  <Icons.AddImage />
+                </div>
+                <input
+                  className="hidden"
+                  name="WallpaperPictureUpload"
+                  type="file"
+                  onChange={(e) => handleImageUpload(e, "wallpaper")}
+                />
+              </label>
+            </>
+          )}
+          <label className="text-breta-blue text-sm font-semibold leading-6 select-none flex-0">
+            Escoge hasta 9 fotografías para tu galería
+            <div className="grid grid-cols-3 gap-4">
+              {Array(9)
+                .fill(0)
+                .map((_, index) => (
+                  <>
+                    {galleryStringImages[index] == null ? (
+                      <UploadImageSquare
+                        key={"square" + index}
+                        imageNumber={index}
+                        onFileChange={handleImageGaleryUpload}
+                      />
+                    ) : (
+                      <>
                         <UploadImageSquare
+                          image={galleryStringImages[index]}
                           key={index}
                           imageNumber={index}
                           onFileChange={handleImageGaleryUpload}
                         />
-                      ) : (
-                        <>
-                          <UploadImageSquare
-                            image={galleryStringImages[index]}
-                            key={index}
-                            imageNumber={index}
-                            onFileChange={handleImageGaleryUpload}
-                          />
-                        </>
-                      )}
-                    </>
-                  ))}
-              </div>
-            </label>
+                      </>
+                    )}
+                  </>
+                ))}
+            </div>
+          </label>
         </div>
         <div className="flex flex-col justify-around gap-2 h-full w-1/3 p-4 shadow-lg shadow-breta-blue/40 border-2 border-gray-300 rounded-xl">
           <div className=" justify-center shrink w-full text-breta-blue text-sm font-semibold leading-6 select-none">
@@ -489,7 +520,10 @@ const SalonCustomization = () => {
             <DaySelector day="sabado" handleDayChange={handleDayChange} />
             <DaySelector day="domingo" handleDayChange={handleDayChange} />
           </div>
-          <button className="text-sm py-5 ring-1 tracking-wide font-bold ring-gray-300 bg-breta-blue hover:bg-breta-dark-blue rounded-md px-6 focus:outline-0 placeholder:text-sm text-gray-100">
+          <button
+            onClick={updateSalon}
+            className="text-sm py-5 ring-1 tracking-wide font-bold ring-gray-300 bg-breta-blue hover:bg-breta-dark-blue rounded-md px-6 focus:outline-0 placeholder:text-sm text-gray-100"
+          >
             Guardar Cambios
           </button>
         </div>

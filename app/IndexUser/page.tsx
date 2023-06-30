@@ -24,7 +24,23 @@ export default function User() {
 
   const getSalons = async () => {
     const query = `{
-  }`;
+      findBy(findByInput: {
+        type: "salon"
+      }){
+        full_name
+        type
+        email
+        cellphone
+        profile{
+          location
+          profile_picture
+          wallpaper
+          schedule
+          image_gallery
+        }
+       
+      }
+    }`;
     const options = {
       method: "POST",
       headers: headers,
@@ -32,7 +48,9 @@ export default function User() {
     };
     const response = await fetch(URL, options);
     const data = await response.json();
+    console.log(data)
     const result = data.data;
+    console.log(result)
   };
   return (
     <>
