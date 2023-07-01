@@ -23,7 +23,7 @@ export default function DaySelector(props: DaySelectorProps) {
   return (
     <>
     <div className="flex items-center justify-center gap-4 w-full">
-      <label className="relative inline-flex items-center cursor-pointer w-1/2">
+      <label className="relative inline-flex items-center cursor-pointer w-1/3">
         <input
           onChange={(e) =>{handleChanges(e.target.checked, "day");handleDayChange(e.target.checked)}}
           type="checkbox"
@@ -34,15 +34,17 @@ export default function DaySelector(props: DaySelectorProps) {
           {props.day.charAt(0).toUpperCase() + props.day.slice(1)}
         </span>
       </label>
-        <div className="flex gap-4 w-1/2" >
+        <div className="flex gap-4 w-2/3" >
           <input
             type="time"
-            className="text-sm ring-1 ring-gray-300 rounded-md p-1 w-1/2 focus:outline-0"
+            disabled={activeDay == true ? false : true}
+            className={`text-sm ring-1 ring-gray-300 rounded-md p-1 w-1/2 cursor-text focus:outline-0 disabled:ring-0 disabled:bg-gray-200 disabled:cursor-not-allowed`}
             onChange={e =>handleChanges(e.target.value, "from")}
           />
           <input
             type="time"
-            className="text-sm ring-1 ring-gray-300 rounded-md p-1 w-1/2 focus:outline-0"
+            disabled={activeDay == true ? false : true}
+            className={`text-sm ring-1 ring-gray-300 rounded-md p-1 w-1/2 cursor-text focus:outline-0 disabled:ring-0 disabled:bg-gray-200 disabled:cursor-not-allowed`}
             onChange={e =>handleChanges(e.target.value, "to")}
           />
         </div>
