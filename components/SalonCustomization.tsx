@@ -5,7 +5,8 @@ import { SendLogo, SendWallpaper } from "@/services/Images";
 import { ChangeEvent } from "react";
 import { UpdateSalon } from "@/services/Salons";
 import DaySelector from "./UI/DaySelector";
-import UploadImageSquare from "./UI/UploadImageSquare";
+import UploadImage from "./UI/UploadImage";
+import { Bowlby_One_SC } from "next/font/google";
 const IconPack = require("../public/icons/Icons");
 const Icons = new IconPack();
 interface WeeklykSchedule {
@@ -103,13 +104,14 @@ interface SalonLocation {
   postalCode: string;
 }
 const SalonCustomization = () => {
-  const salonId = "7aeba000-26a9-426f-a8d3-a7e9f227376d";
+  const salonId = "3b8493e6-f916-4ef2-821b-df3b77a4a431";
   const [imageGalery, setImageGalery] = useState<File[]>([]);
   const [galleryStringImages, setGalleryStringImages] = useState<string[]>([]);
   const [logoImage, setLogoImage] = useState<File | null>(null);
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [logoImageString, setLogoImageString] = useState<string>("");
   const [coverImageString, setCoverImageString] = useState<string>("");
+  const [blobs, setBlobs] = useState({wallpaper:"",cover:"",gallery:[]})
   const [weeklykSchedule, setWeeklykSchedule] =
     useState<WeeklykSchedule>(scheduleInitialValue);
   const [salonLocation, setSalonLocation] = useState<SalonLocation>(
@@ -126,16 +128,15 @@ const SalonCustomization = () => {
       ["profile"]: {
         ...prevSalonDetails["profile"],
         image_gallery: galleryStringImages,
-        location:salonLocation,
-        schedule:weeklykSchedule
+        location: salonLocation,
+        schedule: weeklykSchedule,
       },
     }));
-    
   }, [weeklykSchedule, galleryStringImages, salonLocation]);
 
   const fetchSalonData = async () => {
     const request = await getSalonById(salonId);
-    console.log(request)
+    console.log(request);
     setSalonDetails(request.data.user);
   };
 
@@ -143,8 +144,10 @@ const SalonCustomization = () => {
     e: ChangeEvent<HTMLInputElement>,
     type: string
   ) => {
+    
     if (e.target.files && e.target.files[0]) {
       const image: File = e.target.files[0];
+      const imageBlob = createBlob(image)
       if (type == "wallpaper") {
         setCoverImage(image);
         const Wallpaper = await SendWallpaper(image as File, salonId);
@@ -163,7 +166,7 @@ const SalonCustomization = () => {
     imageIndex: number
   ) => {
     if (newImage != null) {
-      const imageBlob = URL.createObjectURL(newImage);
+      const imageBlob = createBlob(newImage)
       if (imageGalery.length == 0) {
         setImageGalery([newImage]);
         setGalleryStringImages([imageBlob]);
@@ -190,7 +193,6 @@ const SalonCustomization = () => {
         setImageGalery(newGalleryArray);
         setGalleryStringImages(newGalleryStringImages);
       }
-      console.log(imageGalery);
     }
   };
 
@@ -229,20 +231,20 @@ const SalonCustomization = () => {
         break;
     }
   };
-
+  const createBlob = (image:File, ) =>{
+    return URL.createObjectURL(image);
+  }
   const updateSalon = async () => {
-    try{
-      const response = await UpdateSalon(
-        salonDetails, salonId
-      );
-      if(response){
-        console.log("something")
-        await fetchSalonData()
+    try {
+      const response = await UpdateSalon(salonDetails, salonId);
+      if (response) {
+        console.log("something");
+        await fetchSalonData();
       }
-    }catch(err){
-      await fetchSalonData()
-      console.log(err)
-      return err
+    } catch (err) {
+      await fetchSalonData();
+      console.log(err);
+      return err;
     }
   };
 
@@ -275,7 +277,7 @@ const SalonCustomization = () => {
               </>
             ) : (
               <>
-                <label className="flex flex-col relative aspect-square text-breta-blue text-sm font-semibold leading-6 cursor-pointer border-2 border-breta-blue border-dashed rounded-lg">
+                <label className="flex flex-col relative aspect-square text-breta-blue text-sm font-semibold leading-6 cursor-pointer border-2 border-breta-gray border-dashed rounded-lg">
                   <div className=" overflow-hidden w-full h-full bg-breta-light-gray flex items-center justify-center">
                     <Icons.AddImage />
                   </div>
@@ -466,7 +468,7 @@ const SalonCustomization = () => {
             </>
           ) : (
             <>
-              <label className="flex flex-col relative aspect-video text-breta-blue text-sm font-semibold leading-6 border-2 border-breta-blue border-dashed rounded-lg cursor-pointer">
+              <label className="flex flex-col relative aspect-video text-breta-blue text-sm font-semibold leading-6 border-2 border-breta-gray border-dashed rounded-lg cursor-pointer">
                 <div className="w-full h-full bg-breta-light-gray flex items-center justify-center">
                   <Icons.AddImage />
                 </div>
@@ -487,20 +489,22 @@ const SalonCustomization = () => {
                 .map((_, index) => (
                   <>
                     {galleryStringImages[index] == null ? (
-                      <UploadImageSquare
-                        key={"square" + index}
-                        imageNumber={index}
-                        onFileChange={handleImageGaleryUpload}
-                      />
+                      <div className="aspect-square">
+                        <UploadImage
+                          key={"square" + index}
+                          imageNumber={index}
+                          onFileChange={handleImageGaleryUpload}
+                        />
+                      </div>
                     ) : (
-                      <>
-                        <UploadImageSquare
+                      <div className="aspect-square">
+                        <UploadImage
                           image={galleryStringImages[index]}
                           key={index}
                           imageNumber={index}
                           onFileChange={handleImageGaleryUpload}
                         />
-                      </>
+                      </div>
                     )}
                   </>
                 ))}

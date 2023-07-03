@@ -1,5 +1,6 @@
 "use client";
 import { User, setUserSesion } from "@/redux/features/userSesionSlice";
+import { CreateSalon } from "@/services/UserSesion";
 import { RootState } from "@/redux/store";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -100,6 +101,7 @@ export default function LoginSigninForm() {
       const data = await response.json();
       const result = data.data;
       if (result != null) {
+        await CreateSalon(result.user.user_id, result.user.full_name, result.user.email, result.user.cellphone)
         setUserActionLogin(false);
         setFormState("login");
         setErrors([]);

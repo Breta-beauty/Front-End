@@ -3,13 +3,13 @@ import { ChangeEvent } from "react";
 const IconPack = require("../../public/icons/Icons");
 const Icons = new IconPack();
 
-interface UploadImageSquareProps {
+interface UploadImageProps {
   imageNumber: number;
   image?: string;
-  onFileChange: (file: File | null, imageNumber: number) => void;
+  onFileChange: (file: File | null, imageNumber: number ) => void;
 }
 
-const UploadImageSquare: React.FC<UploadImageSquareProps> = ({
+const UploadImage: React.FC<UploadImageProps> = ({
   imageNumber,
   onFileChange,
   image,
@@ -23,7 +23,7 @@ const UploadImageSquare: React.FC<UploadImageSquareProps> = ({
     <label htmlFor={"ProfilePictureUpload" + imageNumber}>
       <label
         htmlFor={"ProfilePictureUpload" + imageNumber}
-        className={"w-full items-center justify-center flex flex-col aspect-square text-breta-blue text-sm font-semibold leading-6 rounded-lg cursor-pointer  overflow-hidden" + (image ? "" : "border-2 border-breta-blue border-dashed bg-breta-light-gray")}
+        className={"w-full items-center justify-center flex flex-col h-full text-breta-blue text-sm font-semibold leading-6 rounded-lg cursor-pointer  overflow-hidden" + (image ? "" : " border-2 border-breta-gray border-dashed bg-breta-light-gray")}
       >
           {image ? (
             <img
@@ -47,4 +47,4 @@ const UploadImageSquare: React.FC<UploadImageSquareProps> = ({
   );
 };
 
-export default UploadImageSquare;
+export default UploadImage;

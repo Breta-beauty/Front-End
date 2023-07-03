@@ -4,23 +4,22 @@ const headers = {
   "content-type": "application/json",
 };
 
-export async function getSalonById(id: string | undefined) {
+export async function getSalonById(id: string) {
   const graphqlQuerry: string = `{
-        user(user_id : "${id}"){
-        full_name
+      salon(salon_id: ${id}){
+        salon_id
+        salon_name
+        salon_name
         email
         cellphone
-        type
-          profile{
-          services
-          wallpaper
-          profile_picture
-          description
-          location
-          schedule
-        }
-      }
-    }`;
+        main_picture
+        wallpaper
+        description
+        schedule
+        location
+    }
+    }
+    `;
   const options = {
     method: "POST",
     headers: headers,
