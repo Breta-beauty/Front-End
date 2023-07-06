@@ -1,4 +1,4 @@
-const url: string = "https://breta-api.up.railway.app/graphql";
+const url: string = "https://breta-api.onrender.com/graphql";
 const headers = {
   "content-type": "application/json",
 };

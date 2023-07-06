@@ -75,7 +75,7 @@ export default function LoginSigninForm() {
       setErrors([]);
       return setErrors((errors) => [...errors, "Las contraseñas no coinciden"]);
     }
-    const URL: string = "https://breta-api.up.railway.app/graphql";
+    const URL: string = "https://breta-api.onrender.com/graphql";
     const graphqlQuerry: string = `mutation{
       createUser(createUserInput: {
         full_name: "${username}"
@@ -101,6 +101,7 @@ export default function LoginSigninForm() {
       const data = await response.json();
       const result = data.data;
       if (result != null) {
+        console.log(result)
         await CreateSalon(result.user.user_id, result.user.full_name, result.user.email, result.user.cellphone)
         setUserActionLogin(false);
         setFormState("login");
@@ -125,7 +126,7 @@ export default function LoginSigninForm() {
       setErrors([]);
       setErrors((errors) => [...errors, "Porfavor llene todos los campos"]);
     } else {
-      const URL: string = "https://breta-api.up.railway.app/graphql";
+      const URL: string = "https://breta-api.onrender.com/graphql";
       const graphqlQuerry: string = `mutation{
             login(loginUserInput:{
                 email: "${email}"
@@ -135,6 +136,11 @@ export default function LoginSigninForm() {
                 user{ 
                   user_id
                   type
+                  profile{
+                    salons{
+                      salon_id
+                    }
+                  }
                 }
             }
         }`;
@@ -148,14 +154,17 @@ export default function LoginSigninForm() {
         const response = await fetch(URL, options);
         const data = await response.json();
         const result = data.data;
+        console.log(result.login)
         if (result != null) {
           dispatch(
             setUserSesion({
               userId: result.login.user.user_id,
               type: result.login.user.type,
               token: result.login.access_token,
+              salon_id: result.login.user.profile.salons[0].salon_id,
             })
           );
+          console.log(userSesion)
           userSesion.type == "customer"
           ? router.push("/User")
           : router.push("/Salon");
@@ -451,13 +460,13 @@ export default function LoginSigninForm() {
                         </li>
                         <li className="list-none">
                           <input
-                            onChange={() => setUserType("salon")}
+                            onChange={() => setUserType("owner")}
                             type="radio"
                             id="hosting-big"
                             name="hosting"
                             value="hosting-big"
                             className="hidden peer"
-                            checked={userType === "salon"}
+                            checked={userType === "owner"}
                           />
                           <label
                             htmlFor="hosting-big"
@@ -466,7 +475,7 @@ export default function LoginSigninForm() {
                             <div className=" flex flex-col items-center">
                               <Icons.SalonChairIcon />
                               <div className="w-full text-lg font-semibold">
-                                Un Salon
+                                Dueño
                               </div>
                             </div>
                           </label>

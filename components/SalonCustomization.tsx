@@ -6,156 +6,109 @@ import { ChangeEvent } from "react";
 import { UpdateSalon } from "@/services/Salons";
 import DaySelector from "./UI/DaySelector";
 import UploadImage from "./UI/UploadImage";
-import { Bowlby_One_SC } from "next/font/google";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 const IconPack = require("../public/icons/Icons");
 const Icons = new IconPack();
-interface WeeklykSchedule {
-  lunes: {
-    open: boolean;
-    openFrom: string;
-    openTo: string;
-  };
-  martes: {
-    open: boolean;
-    openFrom: string;
-    openTo: string;
-  };
-  miercoles: {
-    open: boolean;
-    openFrom: string;
-    openTo: string;
-  };
-  jueves: {
-    open: boolean;
-    openFrom: string;
-    openTo: string;
-  };
-  viernes: {
-    open: boolean;
-    openFrom: string;
-    openTo: string;
-  };
-  sabado: {
-    open: boolean;
-    openFrom: string;
-    openTo: string;
-  };
-  domingo: {
-    open: boolean;
-    openFrom: string;
-    openTo: string;
-  };
+interface ScheduleDays {
+  day: string;
+  open: boolean;
+  from: string;
+  to: string;
 }
-const scheduleInitialValue: WeeklykSchedule = {
-  lunes: {
-    open: false,
-    openFrom: "0",
-    openTo: "0",
-  },
-  martes: {
-    open: false,
-    openFrom: "0",
-    openTo: "0",
-  },
-  miercoles: {
-    open: false,
-    openFrom: "0",
-    openTo: "0",
-  },
-  jueves: {
-    open: false,
-    openFrom: "0",
-    openTo: "0",
-  },
-  viernes: {
-    open: false,
-    openFrom: "0",
-    openTo: "0",
-  },
-  sabado: {
-    open: false,
-    openFrom: "0",
-    openTo: "0",
-  },
-  domingo: {
-    open: false,
-    openFrom: "0",
-    openTo: "0",
-  },
-};
+const scheduleInitialValue: ScheduleDays[] = [
+  { day: "lunes", open: false, from: "", to: "" },
+  { day: "martes", open: false, from: "", to: "" },
+  { day: "miercoles", open: false, from: "", to: "" },
+  { day: "jueves", open: false, from: "", to: "" },
+  { day: "viernes", open: false, from: "", to: "" },
+  { day: "sabado", open: false, from: "", to: "" },
+  { day: "domingo", open: false, from: "", to: "" },
+];
 export interface SalonData {
-  full_name: string;
+  salon_name: string;
   type: string;
   email: string;
   cellphone: string;
-  profile: {
-    location: SalonLocation;
-    profile_picture: string;
-    wallpaper: string;
-    schedule: WeeklykSchedule;
-    image_gallery: string[];
-  };
+  description: string;
+  location: {};
+  main_picture: string;
+  schedule: [];
+  wallpaper: string;
+  image_gallery: string[];
 }
 interface SalonLocation {
   street: string;
-  city: string;
+  ciudad: string;
   interiorNumber: string;
   exteriorNumber: string;
   postalCode: string;
 }
 const SalonCustomization = () => {
-  const salonId = "3b8493e6-f916-4ef2-821b-df3b77a4a431";
+  const salonId = localStorage.getItem("salon_id") as string;
+  const router = useRouter();
+  const [loading, setLoading] = useState<boolean>(false);
   const [imageGalery, setImageGalery] = useState<File[]>([]);
   const [galleryStringImages, setGalleryStringImages] = useState<string[]>([]);
   const [logoImage, setLogoImage] = useState<File | null>(null);
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [logoImageString, setLogoImageString] = useState<string>("");
   const [coverImageString, setCoverImageString] = useState<string>("");
-  const [blobs, setBlobs] = useState({wallpaper:"",cover:"",gallery:[]})
-  const [weeklykSchedule, setWeeklykSchedule] =
-    useState<WeeklykSchedule>(scheduleInitialValue);
+  const [blobs, setBlobs] = useState({ wallpaper: "", cover: "", gallery: [] });
+  const [weeklykSchedule, setWeeklykSchedule] = useState(scheduleInitialValue);
   const [salonLocation, setSalonLocation] = useState<SalonLocation>(
     {} as SalonLocation
   );
   const [salonDetails, setSalonDetails] = useState<SalonData>({} as SalonData);
 
   useEffect(() => {
-    fetchSalonData();
+    setLoading(true);
+    if (!localStorage.getItem("token")) {
+      router.push("/");
+      setLoading(false);
+    } else {
+      fetchSalonData();
+      setLoading(false);
+    }
   }, []);
+
   useEffect(() => {
-    setSalonDetails((prevSalonDetails) => ({
-      ...prevSalonDetails,
-      ["profile"]: {
-        ...prevSalonDetails["profile"],
-        image_gallery: galleryStringImages,
-        location: salonLocation,
-        schedule: weeklykSchedule,
-      },
-    }));
-  }, [weeklykSchedule, galleryStringImages, salonLocation]);
+    // setSalonDetails((prevSalonDetails) => ({
+    //   ...prevSalonDetails,
+    //   wallpaper: coverImageString,
+    //   image_gallery: galleryStringImages,
+    //   main_picture: logoImageString,
+    // }));
+  }, [galleryStringImages, salonLocation]);
 
   const fetchSalonData = async () => {
     const request = await getSalonById(salonId);
-    console.log(request);
-    setSalonDetails(request.data.user);
+    setSalonDetails(request.data.salon);
   };
 
   const handleImageUpload = async (
     e: ChangeEvent<HTMLInputElement>,
     type: string
   ) => {
-    
     if (e.target.files && e.target.files[0]) {
       const image: File = e.target.files[0];
-      const imageBlob = createBlob(image)
+      const imageBlob = createBlob(image);
+      setBlobs((prevBlobs) => ({ ...prevBlobs, cover: imageBlob }));
       if (type == "wallpaper") {
         setCoverImage(image);
         const Wallpaper = await SendWallpaper(image as File, salonId);
-        setCoverImageString(Wallpaper);
+        setSalonDetails((prevSalonDetails) => ({
+          ...prevSalonDetails,
+          wallpaper: Wallpaper,
+        }));
       } else {
         setLogoImage(image);
         const Logo = await SendLogo(image as File, salonId);
-        setLogoImageString(Logo);
+        setSalonDetails((prevSalonDetails) => ({
+          ...prevSalonDetails,
+          main_picture: Logo,
+        }));
       }
     } else {
     }
@@ -166,7 +119,7 @@ const SalonCustomization = () => {
     imageIndex: number
   ) => {
     if (newImage != null) {
-      const imageBlob = createBlob(newImage)
+      const imageBlob = createBlob(newImage);
       if (imageGalery.length == 0) {
         setImageGalery([newImage]);
         setGalleryStringImages([imageBlob]);
@@ -203,48 +156,60 @@ const SalonCustomization = () => {
   ) => {
     switch (type) {
       case "day":
-        setWeeklykSchedule((prevSchedule) => ({
-          ...prevSchedule,
-          [key]: {
-            ...prevSchedule[key as keyof WeeklykSchedule],
-            open: event,
-          },
-        }));
+        const newDayChangeSchedule = weeklykSchedule.map((day) => {
+          if (day.day == key) {
+            return {
+              ...day,
+              open: event,
+            };
+          }
+          return day;
+        });
+        setWeeklykSchedule(newDayChangeSchedule as ScheduleDays[]);
         break;
       case "from":
-        setWeeklykSchedule((prevSchedule) => ({
-          ...prevSchedule,
-          [key]: {
-            ...prevSchedule[key as keyof WeeklykSchedule],
-            openFrom: event,
-          },
-        }));
+        const newFromChangeSchedule = weeklykSchedule.map((day) => {
+          if (day.day == key) {
+            return {
+              ...day,
+              from: event,
+            };
+          }
+          return day;
+        });
+        setWeeklykSchedule(newFromChangeSchedule as ScheduleDays[]);
         break;
       case "to":
-        setWeeklykSchedule((prevSchedule) => ({
-          ...prevSchedule,
-          [key]: {
-            ...prevSchedule[key as keyof WeeklykSchedule],
-            openTo: event,
-          },
-        }));
+        const newToChangeSchedule = weeklykSchedule.map((day) => {
+          if (day.day == key) {
+            return {
+              ...day,
+              to: event,
+            };
+          }
+          return day;
+        });
+        setWeeklykSchedule(newToChangeSchedule as ScheduleDays[]);
         break;
     }
   };
-  const createBlob = (image:File, ) =>{
+  const createBlob = (image: File) => {
     return URL.createObjectURL(image);
-  }
+  };
   const updateSalon = async () => {
     try {
+      setLoading(true);
       const response = await UpdateSalon(salonDetails, salonId);
       if (response) {
-        console.log("something");
         await fetchSalonData();
+        console.log(response, "bien");
       }
     } catch (err) {
       await fetchSalonData();
       console.log(err);
       return err;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -257,12 +222,12 @@ const SalonCustomization = () => {
             htmlFor="ProfilePictureUpload"
           >
             Asigna un Logotipo.
-            {salonDetails.profile && salonDetails.profile.profile_picture ? (
+            {salonDetails && salonDetails.main_picture ? (
               <>
                 <label className="flex flex-col relative aspect-square text-breta-blue text-sm font-semibold leading-6 cursor-pointer">
                   <div className="overflow-hidden w-full h-full bg-breta-light-gray flex items-center justify-center rounded-lg">
                     <img
-                      src={salonDetails.profile.profile_picture}
+                      src={salonDetails.main_picture}
                       alt="Profile Picture"
                       className="rounded-lg"
                     />
@@ -300,9 +265,9 @@ const SalonCustomization = () => {
               placeholder="Nombre del Salón..."
               className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
               type="teFxt"
-              value={salonDetails.full_name ? salonDetails.full_name : ""}
+              value={salonDetails.salon_name ? salonDetails.salon_name : ""}
               onChange={(e) =>
-                setSalonDetails({ ...salonDetails, full_name: e.target.value })
+                setSalonDetails({ ...salonDetails, salon_name: e.target.value })
               }
             />
           </label>
@@ -345,9 +310,9 @@ const SalonCustomization = () => {
               placeholder="Administrador..."
               className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
               type="text"
-              value={salonDetails.full_name ? salonDetails.full_name : ""}
+              value={salonDetails.salon_name ? salonDetails.salon_name : ""}
               onChange={(e) =>
-                setSalonDetails({ ...salonDetails, full_name: e.target.value })
+                setSalonDetails({ ...salonDetails, salon_name: e.target.value })
               }
             />
           </label>
@@ -375,9 +340,9 @@ const SalonCustomization = () => {
               placeholder="Ciudad..."
               className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
               type="text"
-              value={salonLocation.city ? salonLocation.city : ""}
+              value={salonLocation.ciudad ? salonLocation.ciudad : ""}
               onChange={(e) =>
-                setSalonLocation({ ...salonLocation, city: e.target.value })
+                setSalonLocation({ ...salonLocation, ciudad: e.target.value })
               }
             />
           </label>
@@ -447,13 +412,13 @@ const SalonCustomization = () => {
           </div>
         </div>
         <div className="flex flex-col justify-between h-full w-1/3 p-4 shadow-lg shadow-breta-blue/40 border-2 border-gray-300 rounded-xl">
-          {salonDetails.profile && salonDetails.profile.profile_picture ? (
+          {salonDetails.wallpaper && salonDetails.wallpaper ? (
             <>
               <label className="flex flex-col relative aspect-video text-breta-blue text-sm font-semibold leading-6 rounded-lg cursor-pointer">
                 Asigna una Portada
                 <div className="w-full h-full bg-breta-light-gray flex items-center justify-center rounded-lg">
                   <img
-                    src={salonDetails.profile.wallpaper}
+                    src={salonDetails.wallpaper}
                     alt="Profile Picture"
                     className="rounded-lg"
                   />
@@ -528,7 +493,33 @@ const SalonCustomization = () => {
             onClick={updateSalon}
             className="text-sm py-5 ring-1 tracking-wide font-bold ring-gray-300 bg-breta-blue hover:bg-breta-dark-blue rounded-md px-6 focus:outline-0 placeholder:text-sm text-gray-100"
           >
-            Guardar Cambios
+            {loading == true ? (
+              <div className="flex justify-center">
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Cargando...
+              </div>
+            ) : (
+              "Guardar Cambios"
+            )}
           </button>
         </div>
       </div>

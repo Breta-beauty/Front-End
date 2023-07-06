@@ -1,5 +1,5 @@
 import SalonCustomization, { SalonData } from "@/components/SalonCustomization";
-const url: string = "https://breta-api.up.railway.app/graphql";
+const url: string = "https://breta-api.onrender.com/graphql";
 const headers = {
   "content-type": "application/json",
 };
@@ -28,6 +28,7 @@ export async function getSalonById(id: string) {
   try {
     const response = await fetch(url, options);
     const result = await response.json();
+    console.log(result)
     return result;
   } catch (err) {
     console.log(err);
@@ -35,31 +36,21 @@ export async function getSalonById(id: string) {
 }
 
 export async function UpdateSalon(salonDetails: SalonData, id:string) {
-  const graphqlQuerry: string = `mutation{
-    updateUser(
-      user_id: "${id}"
-      updateProfileInput:{
-        profile_picture:"${salonDetails.profile.profile_picture}"
-        wallpaper:"${salonDetails.profile.wallpaper}",
-        location:"${salonDetails.profile.location}",
-        schedule:"${salonDetails.profile.schedule}"
-      }
-      updateUserInput:{
-        full_name:"${salonDetails.full_name}"
-        email:"${salonDetails.email}"
-        cellphone:"${salonDetails.cellphone}"
+  const graphqlQuerry: string = `
+  mutation{
+    updateSalon(
+      salon_id: ${id}
+      updateSalonInput: {
+        salon_name: "${salonDetails.salon_name}"
+        email: "${salonDetails.email}"
+        cellphone: "${salonDetails.cellphone}"
+        main_picture: "${salonDetails.main_picture}"
+        wallpaper: "${salonDetails.wallpaper}"
+
       }
     ){
-      full_name
-      email
-      cellphone
-      profile{
-        profile_picture
-        wallpaper
-        location
-        schedule
-        image_gallery
-      }
+      salon_id
+      salon_name
     }
   }
 `;
@@ -73,6 +64,8 @@ export async function UpdateSalon(salonDetails: SalonData, id:string) {
     const result = await response.json();
     return result;
   } catch (err) {
+    console.log(err)
     return err;
   }
 }
+
