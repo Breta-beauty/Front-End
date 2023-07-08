@@ -1,5 +1,6 @@
 import SalonCustomization, { SalonData } from "@/components/SalonCustomization";
 import { ScheduleDays } from "@/components/SalonCustomization";
+import { Result } from "postcss";
 const url: string = "https://breta-api.onrender.com/graphql";
 const headers = {
   "content-type": "application/json",
@@ -9,7 +10,6 @@ export async function getSalonById(id: string) {
   const graphqlQuerry: string = `{
       salon(salon_id: ${id}){
         salon_id
-        salon_name
         salon_name
         email
         cellphone
@@ -37,7 +37,7 @@ export async function getSalonById(id: string) {
 }
 
 export async function UpdateSalon(salonDetails: SalonData, id:string) {
-  console.log(JSON.stringify(salonDetails.location,null,1))
+  console.log(salonDetails)
   const graphqlQuerry: string = `
   mutation{
     updateSalon(
@@ -48,7 +48,8 @@ export async function UpdateSalon(salonDetails: SalonData, id:string) {
         cellphone: "${salonDetails.cellphone}"
         main_picture: "${salonDetails.main_picture}"
         wallpaper: "${salonDetails.wallpaper}"
-        location: ${JSON.stringify(salonDetails.location,null,1)}
+        schedule: ${salonDetails.schedule}
+        location: ${salonDetails.location}
       }
     ){
       salon_id
@@ -72,4 +73,33 @@ export async function UpdateSalon(salonDetails: SalonData, id:string) {
     return err;
   }
 }
+
+export async function getSalons() {
+  const graphqlQuerry = `{
+    salons{
+      salon_id
+      salon_name
+      email
+      cellphone
+      main_picture
+      wallpaper
+      description
+      schedule
+      location
+    }
+  }`;
+  const options = {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify({ query: graphqlQuerry }),
+  };
+  try{
+    const response = await fetch(url, options);
+    const data = await response.json();
+    const result = data.data;
+    return result
+  }catch(err){
+    console.log(err)
+  }
+};
 

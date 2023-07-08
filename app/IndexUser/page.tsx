@@ -2,56 +2,28 @@
 import { useRef, useEffect, useState } from "react";
 import SalonSearchBar from "@/components/SalonSearchBar";
 import SalonList from "@/components/SalonList";
-import Image from "next/image";
+import { getSalons } from "@/services/Salons";
 const IconPack = require("../../public/icons/Icons");
 const Icons = new IconPack();
 import { useRouter } from "next/navigation";
-import BottomNavDrawer from "@/components/BottomNavDrawer";
 
 export default function User() {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
   const [salons, setSalons] = useState<any>([]);
-  const URL: string = "https://breta-api.up.railway.app/graphql";
-  const headers = {
-    "content-type": "application/json",
-  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     token ? setLoading(false) : router.push("/");
-    getSalons();
+    fetchSalons()
   }, []);
 
-  const getSalons = async () => {
-    const query = `{
-      findBy(findByInput: {
-        type: "salon"
-      }){
-        full_name
-        type
-        email
-        cellphone
-        profile{
-          location
-          profile_picture
-          wallpaper
-          schedule
-          image_gallery
-        }
-       
-      }
-    }`;
-    const options = {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify({ query: query }),
-    };
-    const response = await fetch(URL, options);
-    const data = await response.json();
-    console.log(data)
-    const result = data.data;
-    console.log(result)
-  };
+  const fetchSalons = async()=>{
+    const salons = await getSalons()
+    setSalons(salons)
+  } 
+
+  console.log(salons)
   return (
     <>
       {loading == true ? (
@@ -78,16 +50,17 @@ export default function User() {
           </svg>
         </div>
       ) : (
-        <div className="p-2">
+        <div className="py-2 px-4">
+          <div className="mb-2">
           <SalonSearchBar></SalonSearchBar>
+          </div>
+          <div className="mb-2 flex gap-4">
+            <Icons.Store/>
+            <div className="text-breta-dark-blue font-bold">
+              Salones
+            </div>
+          </div>
           <SalonList salonList={salons} />
-          <div>Content</div>
-          <div>Content</div>
-          <div>Content</div>
-          <div>Content</div>
-          <div>Content</div>
-          <div>Content</div>
-          {/* <BottomNavDrawer /> */}
         </div>
       )}
     </>
