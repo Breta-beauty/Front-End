@@ -101,7 +101,6 @@ export default function LoginSigninForm() {
       const data = await response.json();
       const result = data.data;
       if (result != null) {
-        console.log(result)
         await CreateSalon(result.user.user_id, result.user.full_name, result.user.email, result.user.cellphone)
         setUserActionLogin(false);
         setFormState("login");
@@ -116,6 +115,7 @@ export default function LoginSigninForm() {
         ]);
       }
     } catch (error) {
+      setFormState("login");
       setUserActionLogin(false);
       console.log(error);
     }
@@ -164,9 +164,8 @@ export default function LoginSigninForm() {
               salon_id: result.login.user.profile.salons[0].salon_id,
             })
           );
-          console.log(userSesion)
-          userSesion.type == "customer"
-          ? router.push("/User")
+          userSesion.type == "user"
+          ? router.push("/IndexUser")
           : router.push("/Salon");
         } else {
           setUserActionLogin(false);

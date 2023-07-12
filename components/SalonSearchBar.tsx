@@ -76,7 +76,9 @@ export default function SalonSearchBar() {
             <Icons.Search />
           </div>
           <input
-            onBlur={() => setSearchResults([])}
+            onBlur={()=>setTimeout(() => setSearchResults([]),200)
+              
+            }
             onChange={(e) => setInputValue(e.target.value)}
             className="w-full px-10 text-sm ring-1 ring-gray-300 rounded-md p-2 focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
             placeholder="Buscar"
