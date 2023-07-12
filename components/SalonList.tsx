@@ -1,6 +1,18 @@
 import { SalonData } from "./SalonCustomization";
 import SalonCard from "./SalonCard";
 export default function SalonList(props: { salonList: any }) {
+  console.log(props.salonList)
+  const setGrade = (ratings:any) =>{
+    if(ratings.length == 0){
+      return 0
+    }else{
+      let totalSum = 0
+      ratings.forEach((item:any)=>{
+        totalSum = totalSum + item.score
+      })
+      return Math.round((totalSum / ratings.length)*10)/10
+    }
+  }
   return (
     <>
       {props.salonList.salons != null ? (
@@ -11,7 +23,7 @@ export default function SalonList(props: { salonList: any }) {
                 <SalonCard
                   title={salon.salon_name}
                   address={salon.location.street + " #"+salon.location.interiorNumber}
-                  grade={salon.grade}
+                  grade={setGrade(salon.ratings)}
                   openState={salon.openState}
                   image={salon.main_picture}
                 />

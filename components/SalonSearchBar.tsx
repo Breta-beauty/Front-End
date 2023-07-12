@@ -1,8 +1,6 @@
 "use client";
 import { useState, useEffect, use } from "react";
 import SalonCard from "./SalonCard";
-import { set } from "@project-serum/anchor/dist/cjs/utils/features";
-import { notFound } from "next/navigation";
 const IconPack = require("../public/icons/Icons");
 const Icons = new IconPack();
 export default function SalonSearchBar() {

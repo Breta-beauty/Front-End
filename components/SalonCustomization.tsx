@@ -11,7 +11,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 const IconPack = require("../public/icons/Icons");
 const Icons = new IconPack();
-export interface ScheduleDays {
+interface ScheduleDays {
   day: string;
   open: boolean;
   from: string;
@@ -56,7 +56,7 @@ const SalonCustomization = () => {
   const [logoImageString, setLogoImageString] = useState<string>("");
   const [coverImageString, setCoverImageString] = useState<string>("");
   const [blobs, setBlobs] = useState({ wallpaper: "", cover: "", gallery: [] });
-  const [weeklykSchedule, setWeeklykSchedule] = useState<ScheduleDays[]>(scheduleInitialValue);
+  const [weeklykSchedule, setWeeklykSchedule] = useState(scheduleInitialValue);
   const [salonLocation, setSalonLocation] = useState<SalonLocation>(
     {} as SalonLocation
   );
@@ -73,11 +73,18 @@ const SalonCustomization = () => {
     }
   }, []);
 
+  useEffect(() => {
+    // setSalonDetails((prevSalonDetails) => ({
+    //   ...prevSalonDetails,
+    //   wallpaper: coverImageString,
+    //   image_gallery: galleryStringImages,
+    //   main_picture: logoImageString,
+    // }));
+  }, [galleryStringImages, salonLocation]);
 
   const fetchSalonData = async () => {
     const request = await getSalonById(salonId);
     setSalonDetails(request.data.salon);
-    console.log(typeof(request.data.salon.schedule[0]))
   };
 
   const handleImageUpload = async (
@@ -153,36 +160,36 @@ const SalonCustomization = () => {
           if (day.day == key) {
             return {
               ...day,
-              open: event as boolean,
+              open: event,
             };
           }
           return day;
         });
-        setWeeklykSchedule(newDayChangeSchedule);
+        setWeeklykSchedule(newDayChangeSchedule as ScheduleDays[]);
         break;
       case "from":
         const newFromChangeSchedule = weeklykSchedule.map((day) => {
           if (day.day == key) {
             return {
               ...day,
-              from: event as string,
+              from: event,
             };
           }
           return day;
         });
-        setWeeklykSchedule(newFromChangeSchedule);
+        setWeeklykSchedule(newFromChangeSchedule as ScheduleDays[]);
         break;
       case "to":
         const newToChangeSchedule = weeklykSchedule.map((day) => {
           if (day.day == key) {
             return {
               ...day,
-              to: event as string,
+              to: event,
             };
           }
           return day;
         });
-        setWeeklykSchedule(newToChangeSchedule);
+        setWeeklykSchedule(newToChangeSchedule as ScheduleDays[]);
         break;
     }
     setSalonDetails({...salonDetails,schedule:weeklykSchedule})
@@ -191,7 +198,6 @@ const SalonCustomization = () => {
     return URL.createObjectURL(image);
   };
   const updateSalon = async () => {
-    setSalonDetails({...salonDetails,location:salonLocation})
     try {
       setLoading(true);
       const response = await UpdateSalon(salonDetails, salonId);
