@@ -38,7 +38,7 @@ export interface SalonData {
   wallpaper: string;
   image_gallery: string[];
 }
-interface SalonLocation {
+export interface SalonLocation {
   street: string;
   ciudad: string;
   interiorNumber: string;
