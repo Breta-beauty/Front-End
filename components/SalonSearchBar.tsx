@@ -121,6 +121,7 @@ export default function SalonSearchBar() {
                 return (
                   <div className="mb-4" key={index}>
                     <SalonCard
+                      salon_id={salon.salon_id}
                       title={salon.salon_name}
                       address={
                         salon.location.street +

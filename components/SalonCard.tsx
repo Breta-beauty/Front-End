@@ -1,17 +1,24 @@
+"use client";
 import OpenStateTag from "./OpenStateTag";
+import { useRouter } from "next/navigation";
 const IconPack = require("../public/icons/Icons");
 const Icons = new IconPack();
 
 export default function SalonCard(props: {
+  salon_id: string;
   title: string;
   address: string;
   grade: number;
   openState: string;
   image: string;
 }) {
+  const router = useRouter();
+  const handleCardClick = () => {
+    router.push(`/SalonProfile/?id=${props.salon_id}`);
+  };
   return (
     <>
-      <a className="w-full p-1 h-24 shadow-lg shadow-breta-shadow/50 flex gap-4 rounded-lg cursor-pointer active:bg-breta-light-gray">
+      <a className="w-full p-1 h-24 shadow-lg shadow-breta-shadow/50 flex gap-4 rounded-lg cursor-pointer active:bg-breta-light-gray" onClick={handleCardClick}>
         <div className="w-1/3 overflow-hidden">
           <img
             src={props.image}
@@ -19,7 +26,7 @@ export default function SalonCard(props: {
           />
         </div>
         <div className="flex flex-col justify-around w-2/3">
-          <div className="text-breta-dark-blue font-bold">{props.title}</div>
+          <div className="text-breta-dark-blue font-bold"></div>
           <div className="flex items-center gap-2">
             <Icons.MapPoint />
             <div>
@@ -31,7 +38,7 @@ export default function SalonCard(props: {
           <div className=" flex gap-4 text-sm">
             <OpenStateTag state={props.openState} />
             <div className="flex items-center">
-              <span className="text-breta-yellow">★</span> {props.grade}
+              <span className="text-breta-yellow">★</span> 
             </div>
             {/* <div className="flex gap-2 items-center">
               <Icons.Car/>
