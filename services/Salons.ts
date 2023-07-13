@@ -17,7 +17,7 @@ export async function getSalonById(id: string) {
         description
         schedule
         location
-        rating{
+        ratings{
           score
         }
     }

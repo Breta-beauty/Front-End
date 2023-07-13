@@ -29,6 +29,7 @@ export default function SalonProfile() {
         // token ? setLoading(false) : routing.push("/");
         const fetchSalon = async()=>{
             const request = await getSalonById(id);
+            console.log(request)
             setSalon(request.data.salon);
             setSalonLocation(request.data.salon.location);
         } 

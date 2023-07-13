@@ -26,7 +26,7 @@ export default function SalonCard(props: {
           />
         </div>
         <div className="flex flex-col justify-around w-2/3">
-          <div className="text-breta-dark-blue font-bold"></div>
+          <div className="text-breta-dark-blue font-bold">{props.title}</div>
           <div className="flex items-center gap-2">
             <Icons.MapPoint />
             <div>
@@ -39,6 +39,7 @@ export default function SalonCard(props: {
             <OpenStateTag state={props.openState} />
             <div className="flex items-center">
               <span className="text-breta-yellow">★</span> 
+              {props.grade}
             </div>
             {/* <div className="flex gap-2 items-center">
               <Icons.Car/>
