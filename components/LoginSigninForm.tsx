@@ -109,9 +109,10 @@ export default function LoginSigninForm() {
       } else if (result == null) {
         setUserActionLogin(false);
         setErrors([]);
+        console.log(data)
         setErrors((errors) => [
           ...errors,
-          data.errors[0].extensions.originalError.message,
+          data.errors[0].message,
         ]);
       }
     } catch (error) {
@@ -164,7 +165,7 @@ export default function LoginSigninForm() {
               salon_id:  result.login.user.profile.salons[0] ?  result.login.user.profile.salons[0].salon_id : null
             })
           );
-          result.login.user.type == "client"
+          result.login.user.type == "customer"
           ? router.push("/IndexUser")
           : router.push("/Salon");
         } else {
