@@ -154,17 +154,17 @@ export default function LoginSigninForm() {
         const response = await fetch(URL, options);
         const data = await response.json();
         const result = data.data;
-        console.log(result.login)
+        console.log(result)
         if (result != null) {
           dispatch(
             setUserSesion({
               userId: result.login.user.user_id,
               type: result.login.user.type,
               token: result.login.access_token,
-              salon_id: result.login.user.profile.salons[0].salon_id,
+              salon_id:  result.login.user.profile.salons[0] ?  result.login.user.profile.salons[0].salon_id : null
             })
           );
-          userSesion.type == "user"
+          result.login.user.type == "client"
           ? router.push("/IndexUser")
           : router.push("/Salon");
         } else {
