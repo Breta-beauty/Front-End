@@ -32,7 +32,7 @@ export interface SalonData {
   email: string;
   cellphone: string;
   description: string;
-  location: {};
+  location: SalonLocation;
   main_picture: string;
   schedule: ScheduleDays[];
   wallpaper: string;
@@ -46,7 +46,7 @@ interface SalonLocation {
   postalCode: string;
 }
 const SalonCustomization = () => {
-  const salonId = localStorage.getItem("salon_id") as string;
+  let salonId:string;
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [imageGalery, setImageGalery] = useState<File[]>([]);
@@ -56,7 +56,8 @@ const SalonCustomization = () => {
   const [logoImageString, setLogoImageString] = useState<string>("");
   const [coverImageString, setCoverImageString] = useState<string>("");
   const [blobs, setBlobs] = useState({ wallpaper: "", cover: "", gallery: [] });
-  const [weeklykSchedule, setWeeklykSchedule] = useState<ScheduleDays[]>(scheduleInitialValue);
+  const [weeklykSchedule, setWeeklykSchedule] =
+    useState<ScheduleDays[]>(scheduleInitialValue);
   const [salonLocation, setSalonLocation] = useState<SalonLocation>(
     {} as SalonLocation
   );
@@ -68,16 +69,15 @@ const SalonCustomization = () => {
       router.push("/");
       setLoading(false);
     } else {
+      salonId = localStorage.getItem("salon_id") as string
       fetchSalonData();
       setLoading(false);
     }
   }, []);
 
-
   const fetchSalonData = async () => {
     const request = await getSalonById(salonId);
     setSalonDetails(request.data.salon);
-    console.log(typeof(request.data.salon.schedule[0]))
   };
 
   const handleImageUpload = async (
@@ -185,13 +185,13 @@ const SalonCustomization = () => {
         setWeeklykSchedule(newToChangeSchedule);
         break;
     }
-    setSalonDetails({...salonDetails,schedule:weeklykSchedule})
+    setSalonDetails({ ...salonDetails, schedule: weeklykSchedule });
   };
   const createBlob = (image: File) => {
     return URL.createObjectURL(image);
   };
   const updateSalon = async () => {
-    setSalonDetails({...salonDetails,location:salonLocation})
+    setSalonDetails({ ...salonDetails, location: salonLocation });
     try {
       setLoading(true);
       const response = await UpdateSalon(salonDetails, salonId);
@@ -320,9 +320,15 @@ const SalonCustomization = () => {
               placeholder="Calle/Avenida/Andador..."
               className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
               type="text"
-              value={salonLocation.street ? salonLocation.street : ""}
+              value={salonDetails.location.street ? salonDetails.location.street : ""}
               onChange={(e) =>
-                setSalonLocation({ ...salonLocation, street: e.target.value })
+                setSalonDetails({
+                  ...salonDetails,
+                  location: {
+                    ...salonDetails.location,
+                    street: e.target.value,
+                  },
+                })
               }
             />
           </label>
@@ -335,9 +341,15 @@ const SalonCustomization = () => {
               placeholder="Ciudad..."
               className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
               type="text"
-              value={salonLocation.ciudad ? salonLocation.ciudad : ""}
+              value={salonDetails.location.ciudad ? salonDetails.location.ciudad : ""}
               onChange={(e) =>
-                setSalonLocation({ ...salonLocation, ciudad: e.target.value })
+                setSalonDetails({
+                  ...salonDetails,
+                  location: {
+                    ...salonDetails.location,
+                    ciudad: e.target.value,
+                  },
+                })
               }
             />
           </label>
@@ -357,10 +369,13 @@ const SalonCustomization = () => {
                     : ""
                 }
                 onChange={(e) =>
-                  setSalonLocation({
-                    ...salonLocation,
+                  setSalonDetails({
+                  ...salonDetails,
+                  location: {
+                    ...salonDetails.location,
                     exteriorNumber: e.target.value,
-                  })
+                  },
+                })
                 }
               />
             </label>
@@ -379,9 +394,12 @@ const SalonCustomization = () => {
                     : ""
                 }
                 onChange={(e) =>
-                  setSalonLocation({
-                    ...salonLocation,
-                    interiorNumber: e.target.value,
+                  setSalonDetails({
+                    ...salonDetails,
+                    location: {
+                      ...salonDetails.location,
+                      interiorNumber: e.target.value,
+                    },
                   })
                 }
               />
@@ -397,9 +415,12 @@ const SalonCustomization = () => {
                 type="number"
                 value={salonLocation.postalCode ? salonLocation.postalCode : ""}
                 onChange={(e) =>
-                  setSalonLocation({
-                    ...salonLocation,
-                    postalCode: e.target.value,
+                  setSalonDetails({
+                    ...salonDetails,
+                    location: {
+                      ...salonDetails.location,
+                      postalCode: e.target.value,
+                    },
                   })
                 }
               />
