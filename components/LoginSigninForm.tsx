@@ -165,7 +165,7 @@ export default function LoginSigninForm() {
               salon_id:  result.login.user.profile.salons[0] ?  result.login.user.profile.salons[0].salon_id : null
             })
           );
-          result.login.user.type == "customer"
+          result.login.user.profile.salons.length == 0
           ? router.push("/IndexUser")
           : router.push("/Salon");
         } else {

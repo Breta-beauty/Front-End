@@ -24,7 +24,7 @@ export default function SalonProfile() {
     const serviceDescription = "La parte superior va cortada toda por igual, al igual que las sienes.";
 
       useEffect(() => {
-        const id = router.get('id') as string;
+        const id = Number(router.get('id'));
         // const token = localStorage.getItem("token");
         // token ? setLoading(false) : routing.push("/");
         const fetchSalon = async()=>{

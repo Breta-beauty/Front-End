@@ -4,7 +4,7 @@ const headers = {
   "content-type": "application/json",
 };
 
-export async function getSalonById(id: string) {
+export async function getSalonById(id: number) {
   const graphqlQuerry: string = `{
       salon(salon_id: ${id}){
         salon_id
@@ -37,7 +37,7 @@ export async function getSalonById(id: string) {
   }
 }
 
-export async function UpdateSalon(salonDetails: SalonData, id:string) {
+export async function UpdateSalon(salonDetails: SalonData, id:number) {
   const graphqlQuerry: string = `
   mutation{
     updateSalon(
