@@ -1,8 +1,6 @@
 "use client";
 import { useState, useEffect, use } from "react";
 import SalonCard from "./SalonCard";
-import { set } from "@project-serum/anchor/dist/cjs/utils/features";
-import { notFound } from "next/navigation";
 const IconPack = require("../public/icons/Icons");
 const Icons = new IconPack();
 export default function SalonSearchBar() {
@@ -24,6 +22,18 @@ export default function SalonSearchBar() {
     };
   }, [inputValue]);
 
+  const setGrade = (ratings:any) =>{
+    if(ratings.length == 0){
+      return 0
+    }else{
+      let totalSum = 0
+      ratings.forEach((item:any)=>{
+        totalSum = totalSum + item.score
+      })
+      return Math.round((totalSum / ratings.length)*10)/10
+    }
+  }
+  
   const handleSearch = async (input: String) => {
     if (input.length > 2) {
       setTimeout(async () => {
@@ -35,6 +45,9 @@ export default function SalonSearchBar() {
             salon_name
             location
             main_picture
+            ratings{
+              score
+            }
             services{
               service_id
               service_name
@@ -128,7 +141,7 @@ export default function SalonSearchBar() {
                         " #" +
                         salon.location.interiorNumber
                       }
-                      grade={salon.grade}
+                      grade={setGrade(salon.ratings)}
                       openState={salon.openState}
                       image={salon.main_picture}
                     />

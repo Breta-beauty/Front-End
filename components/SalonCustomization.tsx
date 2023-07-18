@@ -11,7 +11,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 const IconPack = require("../public/icons/Icons");
 const Icons = new IconPack();
-export interface ScheduleDays {
+interface ScheduleDays {
   day: string;
   open: boolean;
   from: string;
@@ -32,7 +32,7 @@ export interface SalonData {
   email: string;
   cellphone: string;
   description: string;
-  location: {};
+  location: SalonLocation;
   main_picture: string;
   schedule: ScheduleDays[];
   wallpaper: string;
@@ -46,7 +46,9 @@ export interface SalonLocation {
   postalCode: string;
 }
 const SalonCustomization = () => {
-  const salonId = localStorage.getItem("salon_id") as string;
+  const [salonId, setSalonId] = useState<number>(
+    Number(localStorage.getItem("salon_id"))
+  );
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [imageGalery, setImageGalery] = useState<File[]>([]);
@@ -56,7 +58,8 @@ const SalonCustomization = () => {
   const [logoImageString, setLogoImageString] = useState<string>("");
   const [coverImageString, setCoverImageString] = useState<string>("");
   const [blobs, setBlobs] = useState({ wallpaper: "", cover: "", gallery: [] });
-  const [weeklykSchedule, setWeeklykSchedule] = useState<ScheduleDays[]>(scheduleInitialValue);
+  const [weeklykSchedule, setWeeklykSchedule] =
+    useState<ScheduleDays[]>(scheduleInitialValue);
   const [salonLocation, setSalonLocation] = useState<SalonLocation>(
     {} as SalonLocation
   );
@@ -73,11 +76,9 @@ const SalonCustomization = () => {
     }
   }, []);
 
-
   const fetchSalonData = async () => {
     const request = await getSalonById(salonId);
     setSalonDetails(request.data.salon);
-    console.log(typeof(request.data.salon.schedule[0]))
   };
 
   const handleImageUpload = async (
@@ -153,52 +154,52 @@ const SalonCustomization = () => {
           if (day.day == key) {
             return {
               ...day,
-              open: event as boolean,
+              open: event,
             };
           }
           return day;
         });
-        setWeeklykSchedule(newDayChangeSchedule);
+        setWeeklykSchedule(newDayChangeSchedule as ScheduleDays[]);
         break;
       case "from":
         const newFromChangeSchedule = weeklykSchedule.map((day) => {
           if (day.day == key) {
             return {
               ...day,
-              from: event as string,
+              from: event,
             };
           }
           return day;
         });
-        setWeeklykSchedule(newFromChangeSchedule);
+        setWeeklykSchedule(newFromChangeSchedule as ScheduleDays[]);
         break;
       case "to":
         const newToChangeSchedule = weeklykSchedule.map((day) => {
           if (day.day == key) {
             return {
               ...day,
-              to: event as string,
+              to: event,
             };
           }
           return day;
         });
-        setWeeklykSchedule(newToChangeSchedule);
+        setWeeklykSchedule(newToChangeSchedule as ScheduleDays[]);
         break;
     }
-    setSalonDetails({...salonDetails,schedule:weeklykSchedule})
+    setSalonDetails({ ...salonDetails, schedule: weeklykSchedule });
   };
   const createBlob = (image: File) => {
     return URL.createObjectURL(image);
   };
+
   const updateSalon = async () => {
-    setSalonDetails({...salonDetails,location:salonLocation})
+    console.log(salonId);
+    setSalonDetails({ ...salonDetails, location: salonLocation });
     try {
       setLoading(true);
       const response = await UpdateSalon(salonDetails, salonId);
-      if (response) {
-        await fetchSalonData();
-        console.log(response, "bien");
-      }
+      console.log(response);
+      console.log(response, "bien");
     } catch (err) {
       await fetchSalonData();
       console.log(err);
@@ -320,9 +321,15 @@ const SalonCustomization = () => {
               placeholder="Calle/Avenida/Andador..."
               className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
               type="text"
-              value={salonLocation.street ? salonLocation.street : ""}
+              value={salonDetails.location ? salonDetails.location.street : ""}
               onChange={(e) =>
-                setSalonLocation({ ...salonLocation, street: e.target.value })
+                setSalonDetails({
+                  ...salonDetails,
+                  location: {
+                    ...salonDetails.location,
+                    street: e.target.value,
+                  },
+                })
               }
             />
           </label>
@@ -335,9 +342,15 @@ const SalonCustomization = () => {
               placeholder="Ciudad..."
               className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
               type="text"
-              value={salonLocation.ciudad ? salonLocation.ciudad : ""}
+              value={salonDetails.location ? salonDetails.location.ciudad : ""}
               onChange={(e) =>
-                setSalonLocation({ ...salonLocation, ciudad: e.target.value })
+                setSalonDetails({
+                  ...salonDetails,
+                  location: {
+                    ...salonDetails.location,
+                    ciudad: e.target.value,
+                  },
+                })
               }
             />
           </label>
@@ -352,14 +365,17 @@ const SalonCustomization = () => {
                 className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-1 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
                 type="number"
                 value={
-                  salonLocation.exteriorNumber
-                    ? salonLocation.exteriorNumber
+                  salonDetails.location
+                    ? salonDetails.location.exteriorNumber
                     : ""
                 }
                 onChange={(e) =>
-                  setSalonLocation({
-                    ...salonLocation,
-                    exteriorNumber: e.target.value,
+                  setSalonDetails({
+                    ...salonDetails,
+                    location: {
+                      ...salonDetails.location,
+                      exteriorNumber: e.target.value,
+                    },
                   })
                 }
               />
@@ -374,14 +390,17 @@ const SalonCustomization = () => {
                 className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-1 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
                 type="number"
                 value={
-                  salonLocation.interiorNumber
-                    ? salonLocation.interiorNumber
+                  salonDetails.location
+                    ? salonDetails.location.interiorNumber
                     : ""
                 }
                 onChange={(e) =>
-                  setSalonLocation({
-                    ...salonLocation,
-                    interiorNumber: e.target.value,
+                  setSalonDetails({
+                    ...salonDetails,
+                    location: {
+                      ...salonDetails.location,
+                      interiorNumber: e.target.value,
+                    },
                   })
                 }
               />
@@ -395,11 +414,16 @@ const SalonCustomization = () => {
                 placeholder="C.P."
                 className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-1 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
                 type="number"
-                value={salonLocation.postalCode ? salonLocation.postalCode : ""}
+                value={
+                  salonDetails.location ? salonDetails.location.postalCode : ""
+                }
                 onChange={(e) =>
-                  setSalonLocation({
-                    ...salonLocation,
-                    postalCode: e.target.value,
+                  setSalonDetails({
+                    ...salonDetails,
+                    location: {
+                      ...salonDetails.location,
+                      postalCode: e.target.value,
+                    },
                   })
                 }
               />
