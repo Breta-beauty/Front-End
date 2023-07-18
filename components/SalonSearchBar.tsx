@@ -45,6 +45,9 @@ export default function SalonSearchBar() {
             salon_name
             location
             main_picture
+            ratings{
+              score
+            }
             services{
               service_id
               service_name
@@ -138,7 +141,7 @@ export default function SalonSearchBar() {
                         " #" +
                         salon.location.interiorNumber
                       }
-                      grade={salon.ratings}
+                      grade={setGrade(salon.ratings)}
                       openState={salon.openState}
                       image={salon.main_picture}
                     />

@@ -46,7 +46,9 @@ export interface SalonLocation {
   postalCode: string;
 }
 const SalonCustomization = () => {
-  let salonId:number;
+  const [salonId, setSalonId] = useState<number>(
+    Number(localStorage.getItem("salon_id"))
+  );
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [imageGalery, setImageGalery] = useState<File[]>([]);
@@ -69,7 +71,6 @@ const SalonCustomization = () => {
       router.push("/");
       setLoading(false);
     } else {
-      salonId = Number(localStorage.getItem("salon_id"))
       fetchSalonData();
       setLoading(false);
     }
@@ -190,15 +191,15 @@ const SalonCustomization = () => {
   const createBlob = (image: File) => {
     return URL.createObjectURL(image);
   };
+
   const updateSalon = async () => {
-    setSalonDetails({...salonDetails,location:salonLocation})
+    console.log(salonId);
+    setSalonDetails({ ...salonDetails, location: salonLocation });
     try {
       setLoading(true);
       const response = await UpdateSalon(salonDetails, salonId);
-      if (response) {
-        await fetchSalonData();
-        console.log(response, "bien");
-      }
+      console.log(response);
+      console.log(response, "bien");
     } catch (err) {
       await fetchSalonData();
       console.log(err);
@@ -364,18 +365,18 @@ const SalonCustomization = () => {
                 className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-1 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
                 type="number"
                 value={
-                  salonDetails.location	
+                  salonDetails.location
                     ? salonDetails.location.exteriorNumber
                     : ""
                 }
                 onChange={(e) =>
                   setSalonDetails({
-                  ...salonDetails,
-                  location: {
-                    ...salonDetails.location,
-                    exteriorNumber: e.target.value,
-                  },
-                })
+                    ...salonDetails,
+                    location: {
+                      ...salonDetails.location,
+                      exteriorNumber: e.target.value,
+                    },
+                  })
                 }
               />
             </label>
@@ -413,7 +414,9 @@ const SalonCustomization = () => {
                 placeholder="C.P."
                 className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-1 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
                 type="number"
-                value={salonDetails.location ? salonDetails.location.postalCode : ""}
+                value={
+                  salonDetails.location ? salonDetails.location.postalCode : ""
+                }
                 onChange={(e) =>
                   setSalonDetails({
                     ...salonDetails,

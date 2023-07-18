@@ -73,7 +73,6 @@ export async function UpdateSalon(salonDetails: SalonData, id:number) {
     }
   }
 `;
-console.log(graphqlQuerry)
   const options = {
     method: "POST",
     headers: headers,
