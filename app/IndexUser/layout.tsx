@@ -1,5 +1,6 @@
 import BottomNavDrawer from "@/components/BottomNavDrawer";
-export default function RootLayout({
+
+export default function User({
   children,
 }: {
   children: React.ReactNode;

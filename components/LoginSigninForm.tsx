@@ -1,10 +1,15 @@
 "use client";
+import { User, setUserSesion } from "@/redux/features/userSesionSlice";
+import { CreateSalon } from "@/services/UserSesion";
+import { RootState } from "@/redux/store";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 const IconPack = require("../public/icons/Icons");
 const Icons = new IconPack();
 export default function LoginSigninForm() {
-
+  const userSesion = useSelector((state: RootState) => state.userSesion);
+  const dispatch = useDispatch();
   const [usernameField, setUsernameField] = useState<string>("");
   const [emailField, setEmailField] = useState<string>("");
   const [cellphoneField, setCellphoneField] = useState<string>("");
@@ -12,8 +17,9 @@ export default function LoginSigninForm() {
   const passwordConfirm = useRef<string>("");
   const [gender, setGender] = useState<string>("");
   const [userType, setUserType] = useState<string>("");
-  const [stringDateOfBirth, setStringDateOfBirth] = useState<string>("")
+  const [stringDateOfBirth, setStringDateOfBirth] = useState<string>("");
   const dateOfBirth = useRef<Date>(new Date());
+  const [userActionLoading, setUserActionLogin] = useState(false);
 
   const [passwordVisibilityRef, setpasswordVisibilityRef] =
     useState<string>("password");
@@ -28,8 +34,12 @@ export default function LoginSigninForm() {
   };
 
   const renderErrors = (errors: any) => {
-    return errors.map((error:string,index:number) => {
-      return <div key={index} className=" text-breta-orange font-sm mt-2">{errors}</div>;
+    return errors.map((error: string, index: number) => {
+      return (
+        <div key={index} className=" text-breta-orange font-sm mt-2">
+          {errors}
+        </div>
+      );
     });
   };
 
@@ -54,7 +64,7 @@ export default function LoginSigninForm() {
       passwordConfirm == "" ||
       passwordConfirm == "" ||
       !gender ||
-      !dateOfBirth 
+      !dateOfBirth
     ) {
       setErrors([]);
       return setErrors((errors) => [
@@ -65,7 +75,7 @@ export default function LoginSigninForm() {
       setErrors([]);
       return setErrors((errors) => [...errors, "Las contraseñas no coinciden"]);
     }
-    const URL: string = "https://breta-api.up.railway.app/graphql";
+    const URL: string = "https://breta-api.onrender.com/graphql";
     const graphqlQuerry: string = `mutation{
       createUser(createUserInput: {
         full_name: "${username}"
@@ -86,22 +96,28 @@ export default function LoginSigninForm() {
     };
 
     try {
+      setUserActionLogin(true);
       const response = await fetch(URL, options);
       const data = await response.json();
       const result = data.data;
-      console.log(graphqlQuerry);
       if (result != null) {
+        await CreateSalon(result.user.user_id, result.user.full_name, result.user.email, result.user.cellphone)
+        setUserActionLogin(false);
         setFormState("login");
         setErrors([]);
         setpasswordVisibilityRef("password");
       } else if (result == null) {
+        setUserActionLogin(false);
         setErrors([]);
+        console.log(data)
         setErrors((errors) => [
           ...errors,
-          data.errors[0].extensions.originalError.message,
+          data.errors[0].message,
         ]);
       }
     } catch (error) {
+      setFormState("login");
+      setUserActionLogin(false);
       console.log(error);
     }
   };
@@ -111,7 +127,7 @@ export default function LoginSigninForm() {
       setErrors([]);
       setErrors((errors) => [...errors, "Porfavor llene todos los campos"]);
     } else {
-      const URL: string = "https://breta-api.up.railway.app/graphql";
+      const URL: string = "https://breta-api.onrender.com/graphql";
       const graphqlQuerry: string = `mutation{
             login(loginUserInput:{
                 email: "${email}"
@@ -121,6 +137,11 @@ export default function LoginSigninForm() {
                 user{ 
                   user_id
                   type
+                  profile{
+                    salons{
+                      salon_id
+                    }
+                  }
                 }
             }
         }`;
@@ -130,13 +151,25 @@ export default function LoginSigninForm() {
         body: JSON.stringify({ query: graphqlQuerry }),
       };
       try {
+        setUserActionLogin(true);
         const response = await fetch(URL, options);
         const data = await response.json();
         const result = data.data;
+        console.log(result)
         if (result != null) {
-          localStorage.setItem("token", data.data.login.access_token);
-          result.login.user.type == "customer" ? router.push("/IndexUser") : router.push("/IndexSalon")
+          dispatch(
+            setUserSesion({
+              userId: result.login.user.user_id,
+              type: result.login.user.type,
+              token: result.login.access_token,
+              salon_id:  result.login.user.profile.salons[0] ?  result.login.user.profile.salons[0].salon_id : null
+            })
+          );
+          result.login.user.profile.salons.length == 0
+          ? router.push("/IndexUser")
+          : router.push("/Salon");
         } else {
+          setUserActionLogin(false);
           setErrors([]);
           setErrors((errors) => [
             ...errors,
@@ -167,7 +200,9 @@ export default function LoginSigninForm() {
               <div className="hidden md:block">
                 {formState == "signin" ? (
                   <>
-                    <div className="text-2xl text-breta-dark-blue mb- font-bold">Crea tu Cuenta</div>
+                    <div className="text-2xl text-breta-dark-blue mb- font-bold">
+                      Crea tu Cuenta
+                    </div>
                     <div className="text-breta-dark-blue">
                       Registrate con tus datos para que podamos personalizar tu
                       cuenta.
@@ -175,7 +210,9 @@ export default function LoginSigninForm() {
                   </>
                 ) : (
                   <>
-                    <div className="text-2xl text-breta-dark-blue mb-2 font-bold">!Bienvenido de Nuevo¡</div>
+                    <div className="text-2xl text-breta-dark-blue mb-2 font-bold">
+                      !Bienvenido de Nuevo¡
+                    </div>
                     <div className="text-breta-dark-blue">
                       Nos da gusto verte de vuelta. Inicia sesión con tu cuenta
                       para comenzar.
@@ -228,9 +265,7 @@ export default function LoginSigninForm() {
                           </div>
                         </label>
                         <input
-                          onChange={(e) =>
-                            (setCellphoneField(e.target.value))
-                          }
+                          onChange={(e) => setCellphoneField(e.target.value)}
                           type="number"
                           name="celphoneField"
                           className="w-full px-10 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
@@ -249,9 +284,7 @@ export default function LoginSigninForm() {
                           </div>
                         </label>
                         <input
-                          onChange={(e) =>
-                            (setStringDateOfBirth(e.target.value))
-                          }
+                          onChange={(e) => setStringDateOfBirth(e.target.value)}
                           type="date"
                           name="dateOfBirthField"
                           className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 text-gray-500  "
@@ -270,15 +303,15 @@ export default function LoginSigninForm() {
                       >
                         <li className="list-none">
                           <input
-                            onChange={() => (setGender("male"))}
+                            onChange={() => setGender("male")}
                             type="radio"
                             value="hosting-small"
                             id="hosting-small"
                             name="hosting"
                             className="hidden peer"
-                            checked={gender==="male"}
+                            checked={gender === "male"}
                             required
-                            />
+                          />
                           <label
                             htmlFor="hosting-small"
                             className="inline-flex items-center justify-center w-full p-5 text-breta-blue bg-breta-light-gray border border-gray-200 rounded-lg cursor-pointer peer-checked:border-breta-blue hover:bg-gray-100"
@@ -294,12 +327,12 @@ export default function LoginSigninForm() {
                         </li>
                         <li className="list-none">
                           <input
-                            onChange={() => (setGender("female"))}
+                            onChange={() => setGender("female")}
                             type="radio"
                             value="hosting-big"
                             id="hosting-big"
                             name="hosting"
-                            checked={gender==="female"}
+                            checked={gender === "female"}
                             className="hidden peer"
                           />
                           <label
@@ -332,9 +365,7 @@ export default function LoginSigninForm() {
                         </label>
                         <input
                           required
-                          onChange={(e) =>
-                            (setEmailField(e.target.value))
-                          }
+                          onChange={(e) => setEmailField(e.target.value)}
                           name="email"
                           className="w-full px-10 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
                           placeholder="Ingresa tu correo electrónico"
@@ -406,7 +437,7 @@ export default function LoginSigninForm() {
                       >
                         <li className="list-none">
                           <input
-                            onChange={() => (setUserType("customer"))}
+                            onChange={() => setUserType("customer")}
                             type="radio"
                             id="hosting-small"
                             name="hosting"
@@ -429,13 +460,13 @@ export default function LoginSigninForm() {
                         </li>
                         <li className="list-none">
                           <input
-                            onChange={() => (setUserType("salon"))}
+                            onChange={() => setUserType("owner")}
                             type="radio"
                             id="hosting-big"
                             name="hosting"
                             value="hosting-big"
                             className="hidden peer"
-                            checked={userType === "salon"}
+                            checked={userType === "owner"}
                           />
                           <label
                             htmlFor="hosting-big"
@@ -444,7 +475,7 @@ export default function LoginSigninForm() {
                             <div className=" flex flex-col items-center">
                               <Icons.SalonChairIcon />
                               <div className="w-full text-lg font-semibold">
-                                Un Salon
+                                Dueño
                               </div>
                             </div>
                           </label>
@@ -503,7 +534,7 @@ export default function LoginSigninForm() {
                     </label>
                     <input
                       required
-                      onChange={(e) => (setEmailField(e.target.value))}
+                      onChange={(e) => setEmailField(e.target.value)}
                       type="email"
                       name="email"
                       className="w-full px-10 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
@@ -542,12 +573,36 @@ export default function LoginSigninForm() {
               {formState == "login" ? (
                 <button
                   type="button"
-                  onClick={(e) =>
-                    Login(emailField, passwordField.current)
-                  }
+                  onClick={(e) => Login(emailField, passwordField.current)}
                   className="text-sm py-5 ring-1 tracking-wide font-bold ring-gray-300 bg-breta-blue hover:bg-breta-dark-blue rounded-md px-6 focus:outline-0 placeholder:text-sm text-gray-100"
                 >
-                  Iniciar Sesión
+                  {userActionLoading == true ? (
+                    <div className="flex justify-center">
+                      <svg
+                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          stroke-width="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Cargando...
+                    </div>
+                  ) : (
+                    "Iniciar Sesión"
+                  )}
                 </button>
               ) : (
                 <button
@@ -580,8 +635,8 @@ export default function LoginSigninForm() {
                     <a
                       className="font-bold cursor-pointer"
                       onClick={() => {
-                        setFormState("signin")
-                        setErrors([])
+                        setFormState("signin");
+                        setErrors([]);
                       }}
                     >
                       Nueva cuenta
@@ -598,8 +653,8 @@ export default function LoginSigninForm() {
                     <a
                       className="font-bold cursor-pointer"
                       onClick={() => {
-                        setFormState("login")
-                        setErrors([])
+                        setFormState("login");
+                        setErrors([]);
                       }}
                     >
                       Inicia Sesión
