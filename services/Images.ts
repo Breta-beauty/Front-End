@@ -3,7 +3,7 @@ const headers = {
   "content-type": "application/json",
 };
 
-export async function SendLogo(image: File, id: number) {
+export async function SendLogo(image: File, id: number|undefined) {
   const formData = new FormData();
   formData.append("file", image);
   formData.append("upload_preset", "f2sxioyr");
@@ -19,7 +19,7 @@ export async function SendLogo(image: File, id: number) {
     console.log(err);
   }
 }
-export async function SendWallpaper(image: File, id: number) {
+export async function SendWallpaper(image: File, id: number|undefined) {
   const formData = new FormData();
   formData.append("file", image);
   formData.append("upload_preset", "f2sxioyr");

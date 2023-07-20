@@ -46,9 +46,7 @@ export interface SalonLocation {
   postalCode: string;
 }
 const SalonCustomization = () => {
-  const [salonId, setSalonId] = useState<number>(
-    Number(localStorage.getItem("salon_id"))
-  );
+  const [salonId, setSalonId] = useState<number>();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [imageGalery, setImageGalery] = useState<File[]>([]);
@@ -71,6 +69,7 @@ const SalonCustomization = () => {
       router.push("/");
       setLoading(false);
     } else {
+      setSalonId(Number(localStorage.getItem("salon_id")))
       fetchSalonData();
       setLoading(false);
     }
