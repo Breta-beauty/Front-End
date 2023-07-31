@@ -22,7 +22,7 @@ export default function SalonHeader() {
             <Icons.Bell />
           </Link>
         </div>
-        <div>Profile Picture</div>
+        {/* <div>Profile Picture</div> */}
       </div>
     </nav>
   );

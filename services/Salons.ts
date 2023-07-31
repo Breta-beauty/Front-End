@@ -16,7 +16,6 @@ export async function getSalonById(id: number) {
         wallpaper
         description
         schedule
-        location
         ratings{
           score
         }
@@ -31,7 +30,8 @@ export async function getSalonById(id: number) {
   try {
     const response = await fetch(url, options);
     const result = await response.json();
-    return result;
+    console.log(result)
+    return result.data.salon;
   } catch (err) {
     console.log(err);
   }
@@ -57,22 +57,15 @@ export async function UpdateSalon(salonDetails: SalonData, id:number) {
           { day: "${salonDetails.schedule[5].day}", open: ${salonDetails.schedule[5].open}, from: "${salonDetails.schedule[5].from}", to: "${salonDetails.schedule[5].to}" },
           { day: "${salonDetails.schedule[6].day}", open: ${salonDetails.schedule[6].open}, from: "${salonDetails.schedule[6].from}", to: "${salonDetails.schedule[6].to}" },
         ]
-        location:{
-          street:"${salonDetails.location.street}"
-          ciudad:"${salonDetails.location.ciudad}"
-          interiorNumber:"${salonDetails.location.interiorNumber}"
-          exteriorNumber:"${salonDetails.location.exteriorNumber}"
-          postalCode:"${salonDetails.location.postalCode}"
-        }
       }
     ){
       salon_id
       salon_name
       schedule
-      location
     }
   }
 `;
+  console.log(graphqlQuerry)
   const options = {
     method: "POST",
     headers: headers,
