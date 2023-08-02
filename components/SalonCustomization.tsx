@@ -11,7 +11,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 const IconPack = require("../public/icons/Icons");
 const Icons = new IconPack();
-interface ScheduleDays {
+export interface ScheduleDays {
   day: string;
   open: boolean;
   from: string;
@@ -77,7 +77,7 @@ const SalonCustomization = () => {
 
   const fetchSalonData = async () => {
     const request = await getSalonById(salonId);
-    setSalonDetails(request.data.salon);
+    setSalonDetails(request);
   };
 
   const handleImageUpload = async (
@@ -137,6 +137,7 @@ const SalonCustomization = () => {
           }
         );
         setImageGalery(newGalleryArray);
+        setSalonDetails({...salonDetails,image_gallery:newGalleryStringImages})
         setGalleryStringImages(newGalleryStringImages);
       }
     }
@@ -149,7 +150,7 @@ const SalonCustomization = () => {
   ) => {
     switch (type) {
       case "day":
-        const newDayChangeSchedule = weeklykSchedule.map((day) => {
+        const newDayChangeSchedule = salonDetails.schedule.map((day) => {
           if (day.day == key) {
             return {
               ...day,
@@ -161,7 +162,7 @@ const SalonCustomization = () => {
         setWeeklykSchedule(newDayChangeSchedule as ScheduleDays[]);
         break;
       case "from":
-        const newFromChangeSchedule = weeklykSchedule.map((day) => {
+        const newFromChangeSchedule = salonDetails.schedule.map((day) => {
           if (day.day == key) {
             return {
               ...day,
@@ -173,7 +174,7 @@ const SalonCustomization = () => {
         setWeeklykSchedule(newFromChangeSchedule as ScheduleDays[]);
         break;
       case "to":
-        const newToChangeSchedule = weeklykSchedule.map((day) => {
+        const newToChangeSchedule = salonDetails.schedule.map((day) => {
           if (day.day == key) {
             return {
               ...day,
@@ -185,20 +186,17 @@ const SalonCustomization = () => {
         setWeeklykSchedule(newToChangeSchedule as ScheduleDays[]);
         break;
     }
-    setSalonDetails({ ...salonDetails, schedule: weeklykSchedule });
+    setSalonDetails({ ...salonDetails, schedule:  salonDetails.schedule });
   };
   const createBlob = (image: File) => {
     return URL.createObjectURL(image);
   };
 
   const updateSalon = async () => {
-    console.log(salonId);
-    setSalonDetails({ ...salonDetails, location: salonLocation });
     try {
       setLoading(true);
       const response = await UpdateSalon(salonDetails, salonId);
-      console.log(response);
-      console.log(response, "bien");
+      console.log(response)
     } catch (err) {
       await fetchSalonData();
       console.log(err);
@@ -296,7 +294,7 @@ const SalonCustomization = () => {
               }
             />
           </label>
-          <label
+          {/* <label
             className="relative text-breta-blue block text-sm font-semibold leading-6 select-none"
             htmlFor=""
           >
@@ -310,7 +308,7 @@ const SalonCustomization = () => {
                 setSalonDetails({ ...salonDetails, salon_name: e.target.value })
               }
             />
-          </label>
+          </label> */}
           <label
             className="relative text-breta-blue block text-sm font-semibold leading-6 select-none"
             htmlFor=""
@@ -499,13 +497,13 @@ const SalonCustomization = () => {
             Horario
           </div>
           <div className="flex flex-col justify-around gap-2 h-full">
-            <DaySelector day="lunes" handleDayChange={handleDayChange} />
-            <DaySelector day="martes" handleDayChange={handleDayChange} />
-            <DaySelector day="miercoles" handleDayChange={handleDayChange} />
-            <DaySelector day="jueves" handleDayChange={handleDayChange} />
-            <DaySelector day="viernes" handleDayChange={handleDayChange} />
-            <DaySelector day="sabado" handleDayChange={handleDayChange} />
-            <DaySelector day="domingo" handleDayChange={handleDayChange} />
+            {salonDetails.schedule && salonDetails.schedule.map(day=>{
+              return(
+                <>
+                  <DaySelector day={day.day} scheduleStatus={day} handleDayChange={handleDayChange} />
+                </>
+              )
+            })}
           </div>
           <button
             onClick={updateSalon}
