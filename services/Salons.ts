@@ -4,7 +4,7 @@ const headers = {
   "content-type": "application/json",
 };
 
-export async function getSalonById(id: string) {
+export async function getSalonById(id: number|undefined) {
   const graphqlQuerry: string = `{
       salon(salon_id: ${id}){
         salon_id
@@ -17,7 +17,7 @@ export async function getSalonById(id: string) {
         description
         schedule
         location
-        rating{
+        ratings{
           score
         }
     }
@@ -31,14 +31,13 @@ export async function getSalonById(id: string) {
   try {
     const response = await fetch(url, options);
     const result = await response.json();
-    console.log(result)
     return result;
   } catch (err) {
     console.log(err);
   }
 }
 
-export async function UpdateSalon(salonDetails: SalonData, id:string) {
+export async function UpdateSalon(salonDetails: SalonData, id:number|undefined) {
   const graphqlQuerry: string = `
   mutation{
     updateSalon(
@@ -74,7 +73,6 @@ export async function UpdateSalon(salonDetails: SalonData, id:string) {
     }
   }
 `;
-console.log(graphqlQuerry)
   const options = {
     method: "POST",
     headers: headers,

@@ -3,7 +3,7 @@ const headers = {
   "content-type": "application/json",
 };
 
-export async function SendLogo(image: File, id: string) {
+export async function SendLogo(image: File, id: number|undefined) {
   const formData = new FormData();
   formData.append("file", image);
   formData.append("upload_preset", "f2sxioyr");
@@ -19,7 +19,7 @@ export async function SendLogo(image: File, id: string) {
     console.log(err);
   }
 }
-export async function SendWallpaper(image: File, id: string) {
+export async function SendWallpaper(image: File, id: number|undefined) {
   const formData = new FormData();
   formData.append("file", image);
   formData.append("upload_preset", "f2sxioyr");
@@ -37,7 +37,7 @@ export async function SendWallpaper(image: File, id: string) {
   }
 }
 
-export async function UpdateProfileLogo(imageUrl: string, id: string) {
+export async function UpdateProfileLogo(imageUrl: string, id: number) {
   try {
     const graphqlQuerry: string = `mutation{
       updateProfile(user_id: "${id}" ,updateProfileInput: {
@@ -58,7 +58,7 @@ export async function UpdateProfileLogo(imageUrl: string, id: string) {
     console.log(err);
   }
 }
-export async function UpdateProfileWallpaper(imageUrl: string, id: string) {
+export async function UpdateProfileWallpaper(imageUrl: string, id: number) {
   try {
     const graphqlQuerry: string = `mutation{
       updateProfile(user_id: "${id}" ,updateProfileInput: {

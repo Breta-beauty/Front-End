@@ -45,6 +45,9 @@ export default function SalonSearchBar() {
             salon_name
             location
             main_picture
+            ratings{
+              score
+            }
             services{
               service_id
               service_name
@@ -131,13 +134,14 @@ export default function SalonSearchBar() {
                 return (
                   <div className="mb-4" key={index}>
                     <SalonCard
+                      salon_id={salon.salon_id}
                       title={salon.salon_name}
                       address={
                         salon.location.street +
                         " #" +
                         salon.location.interiorNumber
                       }
-                      grade={salon.ratings}
+                      grade={setGrade(salon.ratings)}
                       openState={salon.openState}
                       image={salon.main_picture}
                     />

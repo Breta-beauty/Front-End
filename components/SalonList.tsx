@@ -21,6 +21,7 @@ export default function SalonList(props: { salonList: any }) {
             return (
               <div className="mb-4" key={index}>
                 <SalonCard
+                  salon_id={salon.salon_id}
                   title={salon.salon_name}
                   address={salon.location.street + " #"+salon.location.interiorNumber}
                   grade={setGrade(salon.ratings)}
