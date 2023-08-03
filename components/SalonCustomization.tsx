@@ -9,6 +9,7 @@ import UploadImage from "./UI/UploadImage";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import { updateSalonAddress } from "@/services/Salons";
 const IconPack = require("../public/icons/Icons");
 const Icons = new IconPack();
 export interface ScheduleDays {
@@ -32,18 +33,20 @@ export interface SalonData {
   email: string;
   cellphone: string;
   description: string;
-  location: SalonLocation;
+  address: SalonLocation;
   main_picture: string;
   schedule: ScheduleDays[];
   wallpaper: string;
   image_gallery: string[];
 }
 export interface SalonLocation {
+  country:string
+  address_id:number;
   street: string;
-  ciudad: string;
-  interiorNumber: string;
-  exteriorNumber: string;
-  postalCode: string;
+  city: string;
+  interior_number: number;
+  exterior_number: number;
+  postal_code: number;
 }
 const SalonCustomization = () => {
   const [salonId, setSalonId] = useState<number>();
@@ -53,8 +56,6 @@ const SalonCustomization = () => {
   const [galleryStringImages, setGalleryStringImages] = useState<string[]>([]);
   const [logoImage, setLogoImage] = useState<File | null>(null);
   const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [logoImageString, setLogoImageString] = useState<string>("");
-  const [coverImageString, setCoverImageString] = useState<string>("");
   const [blobs, setBlobs] = useState({ wallpaper: "", cover: "", gallery: [] });
   const [weeklykSchedule, setWeeklykSchedule] =
     useState<ScheduleDays[]>(scheduleInitialValue);
@@ -69,16 +70,33 @@ const SalonCustomization = () => {
       router.push("/");
       setLoading(false);
     } else {
-      setSalonId(Number(localStorage.getItem("salon_id")))
       fetchSalonData();
       setLoading(false);
     }
   }, []);
 
   const fetchSalonData = async () => {
-    const request = await getSalonById(salonId);
-    setSalonDetails(request);
+    try{
+      const request = await getSalonById(Number(localStorage.getItem("salon_id")));
+      setSalonDetails(request);
+    }catch(err){
+      console.log(err)
+    }
   };
+  const updateSalon = async () => {
+    try {
+      setLoading(true);
+      const updateSalon = await UpdateSalon(salonDetails, Number(localStorage.getItem("salon_id")));
+      const updateAddress = await updateSalonAddress(salonDetails)
+    } catch (err) {
+      await fetchSalonData();
+      console.log(err);
+      return err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const handleImageUpload = async (
     e: ChangeEvent<HTMLInputElement>,
@@ -90,14 +108,14 @@ const SalonCustomization = () => {
       setBlobs((prevBlobs) => ({ ...prevBlobs, cover: imageBlob }));
       if (type == "wallpaper") {
         setCoverImage(image);
-        const Wallpaper = await SendWallpaper(image as File, salonId);
+        const Wallpaper = await SendWallpaper(image as File, Number(localStorage.getItem("salon_id")));
         setSalonDetails((prevSalonDetails) => ({
           ...prevSalonDetails,
           wallpaper: Wallpaper,
         }));
       } else {
         setLogoImage(image);
-        const Logo = await SendLogo(image as File, salonId);
+        const Logo = await SendLogo(image as File);
         setSalonDetails((prevSalonDetails) => ({
           ...prevSalonDetails,
           main_picture: Logo,
@@ -106,7 +124,24 @@ const SalonCustomization = () => {
     } else {
     }
   };
-
+  const handleImageUpload2 = async (
+    newImage: File | null,
+    imageIndex: number
+  ) => {
+    if(newImage != null){
+      const imageString = await SendLogo(newImage)
+      if(salonDetails.image_gallery.length == 0){
+        setSalonDetails({...salonDetails,image_gallery:[imageString]})
+      }else if (imageIndex + 1 > salonDetails.image_gallery.length){
+        setSalonDetails({...salonDetails,image_gallery:[...salonDetails.image_gallery,imageString]})
+      }else{
+        const newImageGallery = salonDetails.image_gallery.map((image,index)=>{
+          return imageIndex == index ? imageString : image
+        })
+        setSalonDetails({...salonDetails,image_gallery:newImageGallery})
+      }
+    }
+  }
   const handleImageGaleryUpload = (
     newImage: File | null,
     imageIndex: number
@@ -192,19 +227,6 @@ const SalonCustomization = () => {
     return URL.createObjectURL(image);
   };
 
-  const updateSalon = async () => {
-    try {
-      setLoading(true);
-      const response = await UpdateSalon(salonDetails, salonId);
-      console.log(response)
-    } catch (err) {
-      await fetchSalonData();
-      console.log(err);
-      return err;
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <>
@@ -256,8 +278,8 @@ const SalonCustomization = () => {
             Nombre*
             <input
               placeholder="Nombre del Salón..."
-              className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
-              type="teFxt"
+              className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 focus:ring-1 focus:ring-breta-blue"
+              type="text"
               value={salonDetails.salon_name ? salonDetails.salon_name : ""}
               onChange={(e) =>
                 setSalonDetails({ ...salonDetails, salon_name: e.target.value })
@@ -271,7 +293,7 @@ const SalonCustomization = () => {
             Teléfono*
             <input
               placeholder="Número de contacto... "
-              className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
+              className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 focus:ring-1 focus:ring-breta-blue"
               type="number"
               value={salonDetails.cellphone ? salonDetails.cellphone : ""}
               onChange={(e) =>
@@ -286,7 +308,7 @@ const SalonCustomization = () => {
             Email*
             <input
               placeholder="Correo electrónico..."
-              className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
+              className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 focus:ring-1 focus:ring-breta-blue"
               type="text"
               value={salonDetails.email ? salonDetails.email : ""}
               onChange={(e) =>
@@ -301,7 +323,7 @@ const SalonCustomization = () => {
             Responsable
             <input
               placeholder="Administrador..."
-              className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
+              className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 focus:ring-1 focus:ring-breta-blue"
               type="text"
               value={salonDetails.salon_name ? salonDetails.salon_name : ""}
               onChange={(e) =>
@@ -316,14 +338,14 @@ const SalonCustomization = () => {
             Calle/Avenida*
             <input
               placeholder="Calle/Avenida/Andador..."
-              className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
+              className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 focus:ring-1 focus:ring-breta-blue"
               type="text"
-              value={salonDetails.location ? salonDetails.location.street : ""}
+              value={salonDetails.address ? salonDetails.address.street : ""}
               onChange={(e) =>
                 setSalonDetails({
                   ...salonDetails,
-                  location: {
-                    ...salonDetails.location,
+                  address: {
+                    ...salonDetails.address,
                     street: e.target.value,
                   },
                 })
@@ -337,15 +359,15 @@ const SalonCustomization = () => {
             Ciudad*
             <input
               placeholder="Ciudad..."
-              className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
+              className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 focus:ring-1 focus:ring-breta-blue"
               type="text"
-              value={salonDetails.location ? salonDetails.location.ciudad : ""}
+              value={salonDetails.address ? salonDetails.address.city : ""}
               onChange={(e) =>
                 setSalonDetails({
                   ...salonDetails,
-                  location: {
-                    ...salonDetails.location,
-                    ciudad: e.target.value,
+                  address: {
+                    ...salonDetails.address,
+                    city: e.target.value,
                   },
                 })
               }
@@ -359,19 +381,19 @@ const SalonCustomization = () => {
               Número*
               <input
                 placeholder="Ext..."
-                className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-1 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
+                className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-1 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 focus:ring-1 focus:ring-breta-blue "
                 type="number"
                 value={
-                  salonDetails.location
-                    ? salonDetails.location.exteriorNumber
+                  salonDetails.address
+                    ? salonDetails.address.exterior_number
                     : ""
                 }
                 onChange={(e) =>
                   setSalonDetails({
                     ...salonDetails,
-                    location: {
-                      ...salonDetails.location,
-                      exteriorNumber: e.target.value,
+                    address: {
+                      ...salonDetails.address,
+                      exterior_number: Number(e.target.value),
                     },
                   })
                 }
@@ -384,19 +406,19 @@ const SalonCustomization = () => {
               Interior
               <input
                 placeholder="Int..."
-                className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-1 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
+                className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-1 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 focus:ring-1 focus:ring-breta-blue"
                 type="number"
                 value={
-                  salonDetails.location
-                    ? salonDetails.location.interiorNumber
+                  salonDetails.address
+                    ? salonDetails.address.interior_number
                     : ""
                 }
                 onChange={(e) =>
                   setSalonDetails({
                     ...salonDetails,
-                    location: {
-                      ...salonDetails.location,
-                      interiorNumber: e.target.value,
+                    address: {
+                      ...salonDetails.address,
+                      interior_number: Number(e.target.value),
                     },
                   })
                 }
@@ -409,17 +431,17 @@ const SalonCustomization = () => {
               Código Postal
               <input
                 placeholder="C.P."
-                className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-1 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 "
+                className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-1 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 focus:ring-1 focus:ring-breta-blue"
                 type="number"
                 value={
-                  salonDetails.location ? salonDetails.location.postalCode : ""
+                  salonDetails.address ? salonDetails.address.postal_code : ""
                 }
                 onChange={(e) =>
                   setSalonDetails({
                     ...salonDetails,
-                    location: {
-                      ...salonDetails.location,
-                      postalCode: e.target.value,
+                    address: {
+                      ...salonDetails.address,
+                      postal_code: Number(e.target.value),
                     },
                   })
                 }
@@ -469,21 +491,21 @@ const SalonCustomization = () => {
                 .fill(0)
                 .map((_, index) => (
                   <>
-                    {galleryStringImages[index] == null ? (
+                    {salonDetails.image_gallery ==null  ? (
                       <div className="aspect-square">
                         <UploadImage
                           key={"square" + index}
                           imageNumber={index}
-                          onFileChange={handleImageGaleryUpload}
+                          onFileChange={handleImageUpload2}
                         />
                       </div>
                     ) : (
                       <div className="aspect-square">
                         <UploadImage
-                          image={galleryStringImages[index]}
+                          image={salonDetails.image_gallery[index]}
                           key={index}
                           imageNumber={index}
-                          onFileChange={handleImageGaleryUpload}
+                          onFileChange={handleImageUpload2}
                         />
                       </div>
                     )}
