@@ -87,6 +87,8 @@ export default function LoginSigninForm() {
         type: "${userType}"
       }){
         user_id
+        email
+        cellphone
       }
     }`;
     const options = {
@@ -99,14 +101,17 @@ export default function LoginSigninForm() {
       setUserActionLogin(true);
       const response = await fetch(URL, options);
       const data = await response.json();
-      const result = data.data;
+      const result = data.data.createUser;
+      console.log(data)
+      console.log(result)
       if (result != null) {
-        await CreateSalon(result.user.user_id, result.user.full_name, result.user.email, result.user.cellphone)
+        const createSalonResult = await CreateSalon(result.user_id, result.email, result.cellphone)
+        console.log(createSalonResult)
         setUserActionLogin(false);
         setFormState("login");
         setErrors([]);
         setpasswordVisibilityRef("password");
-      } else if (result == null) {
+      } else {
         setUserActionLogin(false);
         setErrors([]);
         console.log(data)
