@@ -87,6 +87,8 @@ export default function LoginSigninForm() {
         type: "${userType}"
       }){
         user_id
+        email
+        cellphone
       }
     }`;
     const options = {
@@ -99,21 +101,26 @@ export default function LoginSigninForm() {
       setUserActionLogin(true);
       const response = await fetch(URL, options);
       const data = await response.json();
-      const result = data.data;
+      console.log(data.data);
+      console.log(data);
+      const result = data.data.createUser;
+      console.log(result);
       if (result != null) {
-        await CreateSalon(result.user.user_id, result.user.full_name, result.user.email, result.user.cellphone)
+        const createSalonResult = await CreateSalon(
+          result.user_id,
+          result.email,
+          result.cellphone
+        );
+        console.log(createSalonResult);
         setUserActionLogin(false);
         setFormState("login");
         setErrors([]);
         setpasswordVisibilityRef("password");
-      } else if (result == null) {
+      } else {
         setUserActionLogin(false);
         setErrors([]);
-        console.log(data)
-        setErrors((errors) => [
-          ...errors,
-          data.errors[0].message,
-        ]);
+        console.log(data);
+        setErrors((errors) => [...errors, data.errors[0].message]);
       }
     } catch (error) {
       setFormState("login");
@@ -155,19 +162,21 @@ export default function LoginSigninForm() {
         const response = await fetch(URL, options);
         const data = await response.json();
         const result = data.data;
-        console.log(result)
+        console.log(result);
         if (result != null) {
           dispatch(
             setUserSesion({
               userId: result.login.user.user_id,
               type: result.login.user.type,
               token: result.login.access_token,
-              salon_id:  result.login.user.profile.salons[0] ?  result.login.user.profile.salons[0].salon_id : null
+              salon_id: result.login.user.profile.salons[0]
+                ? result.login.user.profile.salons[0].salon_id
+                : null,
             })
           );
           result.login.user.profile.salons.length == 0
-          ? router.push("/IndexUser")
-          : router.push("/Salon");
+            ? router.push("/IndexUser")
+            : router.push("/Salon");
         } else {
           setUserActionLogin(false);
           setErrors([]);
@@ -620,7 +629,33 @@ export default function LoginSigninForm() {
                   }
                   className="text-sm py-5 ring-1 tracking-wide font-bold ring-gray-300 bg-breta-blue hover:bg-breta-dark-blue rounded-md px-6 focus:outline-0 placeholder:text-sm text-gray-100"
                 >
-                  Crear Cuenta
+                  {userActionLoading == true ? (
+                    <div className="flex justify-center">
+                      <svg
+                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          stroke-width="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Cargando...
+                    </div>
+                  ) : (
+                    "Crear Cuenta"
+                  )}
                 </button>
               )}
             </div>

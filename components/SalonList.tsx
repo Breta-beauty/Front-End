@@ -23,7 +23,7 @@ export default function SalonList(props: { salonList: any }) {
                 <SalonCard
                   salon_id={salon.salon_id}
                   title={salon.salon_name}
-                  address={salon.location.street + " #"+salon.location.interiorNumber}
+                  address={salon.address != null ? salon.address.street + " #"+salon.address.interior_number : ""}
                   grade={setGrade(salon.ratings)}
                   openState={salon.openState}
                   image={salon.main_picture}
