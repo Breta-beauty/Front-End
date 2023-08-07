@@ -3,7 +3,7 @@ const headers = {
   "content-type": "application/json",
 };
 
-export async function SendLogo(image: File, id: number|undefined) {
+export async function SendLogo(image: File) {
   const formData = new FormData();
   formData.append("file", image);
   formData.append("upload_preset", "f2sxioyr");
@@ -29,7 +29,6 @@ export async function SendWallpaper(image: File, id: number|undefined) {
       { body: formData, method: "post" }
     );
     const result = await response.json();
-    console.log(result)
     const imageUrl = result.secure_url;
     return imageUrl
   } catch (err) {

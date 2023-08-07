@@ -9,14 +9,22 @@ export async function getSalonById(id: number|undefined) {
       salon(salon_id: ${id}){
         salon_id
         salon_name
-        salon_name
         email
         cellphone
         main_picture
         wallpaper
         description
         schedule
-        location
+        image_gallery
+        address{
+          address_id
+          country
+          city
+          street
+          postal_code
+          interior_number
+          exterior_number
+        }
         ratings{
           score
         }
@@ -31,7 +39,8 @@ export async function getSalonById(id: number|undefined) {
   try {
     const response = await fetch(url, options);
     const result = await response.json();
-    return result;
+    console.log(result)
+    return result.data.salon;
   } catch (err) {
     console.log(err);
   }
@@ -48,6 +57,15 @@ export async function UpdateSalon(salonDetails: SalonData, id:number|undefined) 
         cellphone: "${salonDetails.cellphone}"
         main_picture: "${salonDetails.main_picture}"
         wallpaper: "${salonDetails.wallpaper}"
+        image_gallery: ["${salonDetails.image_gallery[0]? salonDetails.image_gallery[0] :""}",
+        "${salonDetails.image_gallery[1]? salonDetails.image_gallery[1] :""}",
+        "${salonDetails.image_gallery[2]? salonDetails.image_gallery[2] :""}",
+        "${salonDetails.image_gallery[3]? salonDetails.image_gallery[3] :""}",
+        "${salonDetails.image_gallery[4]? salonDetails.image_gallery[4] :""}",
+        "${salonDetails.image_gallery[5]? salonDetails.image_gallery[5] :""}",
+        "${salonDetails.image_gallery[6]? salonDetails.image_gallery[6] :""}",
+        "${salonDetails.image_gallery[7]? salonDetails.image_gallery[7] :""}",
+        "${salonDetails.image_gallery[8]? salonDetails.image_gallery[8] :""}",]
         schedule:[
           { day: "${salonDetails.schedule[0].day}", open: ${salonDetails.schedule[0].open}, from: "${salonDetails.schedule[0].from}", to: "${salonDetails.schedule[0].to}" },
           { day: "${salonDetails.schedule[1].day}", open: ${salonDetails.schedule[1].open}, from: "${salonDetails.schedule[1].from}", to: "${salonDetails.schedule[1].to}" },
@@ -57,19 +75,11 @@ export async function UpdateSalon(salonDetails: SalonData, id:number|undefined) 
           { day: "${salonDetails.schedule[5].day}", open: ${salonDetails.schedule[5].open}, from: "${salonDetails.schedule[5].from}", to: "${salonDetails.schedule[5].to}" },
           { day: "${salonDetails.schedule[6].day}", open: ${salonDetails.schedule[6].open}, from: "${salonDetails.schedule[6].from}", to: "${salonDetails.schedule[6].to}" },
         ]
-        location:{
-          street:"${salonDetails.location.street}"
-          ciudad:"${salonDetails.location.ciudad}"
-          interiorNumber:"${salonDetails.location.interiorNumber}"
-          exteriorNumber:"${salonDetails.location.exteriorNumber}"
-          postalCode:"${salonDetails.location.postalCode}"
-        }
       }
     ){
       salon_id
       salon_name
       schedule
-      location
     }
   }
 `;
@@ -88,6 +98,43 @@ export async function UpdateSalon(salonDetails: SalonData, id:number|undefined) 
   }
 }
 
+export async function updateSalonAddress(salonDetails:SalonData){
+  const graphqlQuerry:string = `
+    mutation{
+      updateAddress(
+        address_id: ${salonDetails.address.address_id}
+        updateAddressInput: {
+          country: "${salonDetails.address.country}"
+          city: "${salonDetails.address.city}"
+          street: "${salonDetails.address.street}"
+          postal_code: ${salonDetails.address.postal_code}
+          interior_number: ${salonDetails.address.interior_number}
+          exterior_number: ${salonDetails.address.exterior_number}
+        }
+      ){
+        country
+        city
+        street
+        postal_code
+      }
+    }
+  `
+  const options = {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify({ query: graphqlQuerry }),
+  };
+  try {
+    const response = await fetch(url, options);
+    const result = await response.json();
+    console.log(result)
+    return result;
+  } catch (err) {
+    console.log(err)
+    return err;
+  }
+}
+
 export async function getSalons() {
   const graphqlQuerry = `{
     salons{
@@ -99,9 +146,16 @@ export async function getSalons() {
       wallpaper
       description
       schedule
-      location
       ratings{
         score
+      }
+      address{
+        country
+        city
+        street
+        postal_code
+        interior_number
+        exterior_number
       }
     }
   }`;
