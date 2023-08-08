@@ -170,7 +170,7 @@ export default function SalonProfile() {
                         <Icons.Location />
                     </div>
                     <div className="absolute left-12 text-[15px] sm:text-[17px] text-breta-blue block ">
-                        {salonLocation.street + " #"+salonLocation.interiorNumber}
+                        {salonLocation.street + " #"+salonLocation.interior_number}
                     </div>
                     <div className="absolute right-5 cursor-pointer">
                         <Icons.NextPage />
