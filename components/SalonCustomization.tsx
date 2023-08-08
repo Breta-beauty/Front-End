@@ -130,11 +130,12 @@ const SalonCustomization = () => {
   ) => {
     if(newImage != null){
       const imageString = await SendLogo(newImage)
-      if(salonDetails.image_gallery.length == 0){
+      if(salonDetails.image_gallery == null){
         setSalonDetails({...salonDetails,image_gallery:[imageString]})
-      }else if (imageIndex + 1 > salonDetails.image_gallery.length){
-        setSalonDetails({...salonDetails,image_gallery:[...salonDetails.image_gallery,imageString]})
+      }else if (imageIndex + 1 > salonDetails.image_gallery.filter(item=>item!="").length){
+        setSalonDetails({...salonDetails,image_gallery:[...salonDetails.image_gallery.filter(item=>item!=""),imageString]})
       }else{
+        console.log(imageIndex)
         const newImageGallery = salonDetails.image_gallery.map((image,index)=>{
           return imageIndex == index ? imageString : image
         })
@@ -337,7 +338,7 @@ const SalonCustomization = () => {
           >
             Calle/Avenida*
             <input
-              placeholder="Calle/Avenida/Andador..."
+              placeholder="Calle/Avenida/"
               className="w-full px-2 text-sm ring-1 ring-gray-300 rounded-md p-2 bg-breta-light-gray focus:outline-0 placeholder:text-sm tracking-wider placeholder:text-gray-500 focus:ring-1 focus:ring-breta-blue"
               type="text"
               value={salonDetails.address ? salonDetails.address.street : ""}

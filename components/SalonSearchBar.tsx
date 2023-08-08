@@ -43,7 +43,14 @@ export default function SalonSearchBar() {
           }){
             salon_id
             salon_name
-            location
+            address{
+              country
+              city
+              street
+              postal_code
+              interior_number
+              exterior_number
+            }
             main_picture
             ratings{
               score
@@ -64,6 +71,7 @@ export default function SalonSearchBar() {
           const response = await fetch(URL, options);
           const data = await response.json();
           const result = data.data;
+          console.log(data)
           if (result != null) {
             setNotFound(false);
             setSearchResults([]);
@@ -137,9 +145,9 @@ export default function SalonSearchBar() {
                       salon_id={salon.salon_id}
                       title={salon.salon_name}
                       address={
-                        salon.location.street +
+                        salon.address.street +
                         " #" +
-                        salon.location.interiorNumber
+                        salon.address.interiorNumber
                       }
                       grade={setGrade(salon.ratings)}
                       openState={salon.openState}

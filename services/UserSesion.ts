@@ -8,10 +8,10 @@ export async function CreateSalon(user_id:string, email:string, cellphone:string
     createSalon(
       user_id: "${user_id}"
       createSalonInput: {
-        salon_name: "Agrega un nombre a tu salon!"
+        salon_name: "¡Agrega un nombre!"
         email: "${email}"
         cellphone: "${cellphone}"
-        description: "Agrega una descripción!"
+        description: "¡Agrega una descripción!"
         schedule:[
           { day: "lunes", open: false, from: "", to: "" },
           { day: "martes", open: false, from: "", to: "" },

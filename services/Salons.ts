@@ -150,7 +150,6 @@ export async function getSalons() {
         score
       }
       address{
-        address_id
         country
         city
         street
