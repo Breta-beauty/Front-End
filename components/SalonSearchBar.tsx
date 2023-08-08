@@ -147,7 +147,7 @@ export default function SalonSearchBar() {
                       address={
                         salon.address.street +
                         " #" +
-                        salon.address.interiorNumber
+                        salon.address.interior_number
                       }
                       grade={setGrade(salon.ratings)}
                       openState={salon.openState}
