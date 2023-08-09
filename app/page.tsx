@@ -3,6 +3,10 @@ import LoginSignInCarousel from "@/components/LoginSignInCarousel";
 import LoginSigninForm from "@/components/LoginSigninForm";
 import LoginSigninHeader from "@/components/LoginSigninHeader";
 
+import * as dotenv from "dotenv";
+
+dotenv.config();
+
 export default function Home() {
   return (
     <>
