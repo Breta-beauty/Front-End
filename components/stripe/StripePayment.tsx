@@ -1,6 +1,5 @@
 import { Elements } from "@stripe/react-stripe-js";
 import { Stripe, loadStripe } from "@stripe/stripe-js";
-import PaymentForm from "./PaymentForm";
 
 import { useEffect, useState } from "react";
 import CheckoutForm from "./CheckoutForm";
@@ -67,6 +66,26 @@ function StripePayment() {
     });
   }, []);
 
+  function cancelStripeCharge() {
+    const graphqlQuery = `
+    mutation {
+      cancelStripeCharge(
+        paymentIntentId: "${clientSecret}"
+      )
+    }
+      `;
+
+    fetch(URL!, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query: graphqlQuery }),
+    }).then(async (r) => {
+      const res = await r.json();
+    });
+  }
+
   return (
     <>
       {clientSecret && (
@@ -77,7 +96,7 @@ function StripePayment() {
             clientSecret,
           }}
         >
-          <CheckoutForm />
+          <CheckoutForm clientSecret={clientSecret} />
         </Elements>
       )}
     </>
