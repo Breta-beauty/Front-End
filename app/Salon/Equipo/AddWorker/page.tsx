@@ -73,7 +73,7 @@ export default function AddWorker() {
     ) => {
         
         const URL: string =  "http://localhost:3000/graphql";
-        const imageUrl = await SendLogo(profile_picture, salonId);
+        const imageUrl = await SendLogo(profile_picture);
         const graphqlQuerry: string = `mutation{
             createEmployee(
                 salon_id: ${salonId}
