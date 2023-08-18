@@ -1,12 +1,23 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import SalonCarousel from "@/components/SalonCarousel";
+import AverageRatingSalon from "@/components/AverageRatingSalon";
+import ServiceCard from "@/components/ServiceCard";
 import { getSalonById } from "@/services/Salons";
-import { SalonData, SalonLocation } from "@/components/SalonCustomization";
+import { SalonData } from "@/components/SalonCustomization";
 const IconPack = require("../../public/icons/Icons");
 const Icons = new IconPack();
 
+interface SalonLocation {
+    country: string
+    street: string;
+    city: string;
+    interior_number: number;
+    exterior_number: number;
+    postalCode: string;
+  }
 
 export default function SalonProfile() {
     const [showFullText, setShowFullText] = useState(false);
@@ -14,6 +25,7 @@ export default function SalonProfile() {
     const [loading, setLoading] = useState<boolean>(true);
     const [salon, setSalon] = useState<SalonData>({} as SalonData);
     const [salonLocation, setSalonLocation] = useState<SalonLocation>( {} as SalonLocation);
+    const [ services, setServices] = useState([]);
     const router = useSearchParams();
     const routing = useRouter();
     
@@ -31,11 +43,11 @@ export default function SalonProfile() {
             const request = await getSalonById(id);
             console.log(request)
             setSalon(request.data.salon);
-            setSalonLocation(request.data.salon.location);
+            setSalonLocation(request.data.salon.address);
+            setServices(request.data.salon.services);
         } 
         fetchSalon();
         id ? setLoading(false) : routing.push("/IndexUser");
-        console.log(salon)
       }, []);
 
     const handleClick = () => {
@@ -86,7 +98,9 @@ export default function SalonProfile() {
             </div>
             <div></div>
             <div className="relative w-full h-full">
-                <SalonCarousel></SalonCarousel>
+                <SalonCarousel 
+                    image_gallery={salon.image_gallery}
+                />
             </div>
         </div>  
         <div className="relative h-2/3 w-full">
@@ -103,7 +117,7 @@ export default function SalonProfile() {
                         </div>
                             
                     </div>
-                    <div className="relative text-[20px] sm:text-[26px] text-breta-dark-blue mb- font-bold text-center top-[4rem]">
+                    <div className="relative text-[20px] sm:text-[26px] text-breta-dark-blue font-bold text-center top-[4rem]">
                         {salon.salon_name}
                     </div>
                 </div>
@@ -149,7 +163,12 @@ export default function SalonProfile() {
                         Schedule
                     </div>
                     <div className="absolute right-5 cursor-pointer">
-                        <Icons.NextPage />
+                        <Link
+                            href={`/SalonProfile/Schedule/?id=${salon.salon_id}`}
+                            className=""
+                        >
+                            <Icons.NextPage />
+                        </Link>
                     </div>
                     <hr className="relative border-breta-light-gray top-6 sm:top-7 border-[1px] margin-2 mb-8 mr-[1rem] ml-[1rem]"/>
                 </div>
@@ -158,10 +177,17 @@ export default function SalonProfile() {
                         <Icons.Review />
                     </div>
                     <div className="absolute left-12 text-[15px] sm:text-[17px] text-breta-blue block ">
-                        Reviews
+                        <AverageRatingSalon 
+                            score= {salon.ratings}
+                        />
                     </div>
                     <div className="absolute right-5 cursor-pointer">
-                        <Icons.NextPage />
+                        <Link
+                            href={`/SalonProfile/Reviews/?id=${salon.salon_id}`}
+                            className=""
+                        >
+                            <Icons.NextPage />
+                        </Link>
                     </div>
                     <hr className="relative border-breta-light-gray top-6 sm:top-7 border-[1px] margin-2 mb-8 mr-[1rem] ml-[1rem]"/>
                 </div>
@@ -170,25 +196,31 @@ export default function SalonProfile() {
                         <Icons.Location />
                     </div>
                     <div className="absolute left-12 text-[15px] sm:text-[17px] text-breta-blue block ">
-                        {salonLocation.street + " #"+salonLocation.interior_number}
+                        {salonLocation.street + " #" + salonLocation.exterior_number}
                     </div>
                     <div className="absolute right-5 cursor-pointer">
-                        <Icons.NextPage />
+                        <Link
+                            href={`/SalonProfile/Location/?id=${salon.salon_id}`}
+                            className=""
+                        >
+                            <Icons.NextPage />
+                        </Link>
                     </div>
                     <hr className="relative border-breta-light-gray top-6 sm:top-7 border-[1px] margin-2 mb-8 mr-[1rem] ml-[1rem]"/>
                 </div>
-                <div className="mt-7 sm:mt-8">
+                <div className="flex gap-3 ml-5 mt-7">
+                    <div className="">
+                        <Icons.Promotions />
+                    </div>
+                    <div className="text-breta-dark-blue font-bold">
+                        Promociones:
+                    </div>
+                </div>
+                <div className="mt-2 sm:mt-8">
                     <div className="ml-[1rem]">
                         <div className="w-[248px] h-[124px] shadow-lg shadow-breta-shadow/50 bg-breta-dark-blue gap-4 flex rounded-lg cursor-pointer">
                             <div className="overflow-hidden h-full w-[50%] rounded-tl-lg rounded-bl-lg">
                                 <div className="relative h-full w-full bg-cover bg-cover bg-MobileCarouselImage0 md:bg-salonCarouselImage0">
-                                    {/* <div className="absolute h-full w-full z-10 bg-cover bg-MobileCarouselImage3 md:bg-salonCarouselImage3">
-                                    <img 
-                                        src={salon.wallpaper}
-                                        className="h-full w-full bg-cover"
-                                    />
-                                    </div> */}
-                                    
                                     <div className="absolute h-full w-full bg-gradient-to-l from-breta-dark-gray to-transparent z-49">
                                     <div className="relative h-[30px] w-[30px] rounded-lg overflow-hidden left-2 top-2 z-50">
                                         <img 
@@ -217,7 +249,7 @@ export default function SalonProfile() {
                         <Icons.Haircut />
                     </div>
                     <div className="flex text-1xl sm:text-[18px] text-breta-dark-blue font-bold ">
-                        Corte de pelo
+                        Servicios:
                     </div>
                     <div className="flex ml-auto mr-5 cursor-pointer z-50">
                             <button onClick={handleServicesClick}>
@@ -227,26 +259,10 @@ export default function SalonProfile() {
                 </div>
                 <div className="">
                     {showServices && 
-                        <div> 
-                            <div className="relative w-[90%] h-[122px] shadow-lg shadow-breta-shadow flex gap-4 rounded-lg ml-[1rem] mr-[4rem] grid grid-cols-1 gap-4 top-4">
-                        <div className="relative text-breta-dark-blue font-bold text-[12px] sm:text-[14px] ml-[1rem] top-2 inline-block">
-                            {serviceName}
-                        </div>
-                        <div className="absolute right-2 cursor-pointer">
-                            <Icons.AddButton />
-                        </div>
-                        <div className=" flex text-breta-blue text-[12px] sm:text-[14px] ml-[1rem] mr-[6rem]">
-                            {serviceDescription}
-                        </div>
-                        <div className="absolute bottom-[13px] sm:bottom-[18px] left-4">
-                            <Icons.ServiceDuration />
-                        </div>
-                        <div className="relative text-breta-dark-blue text-[12px] text-[14px] left-10 top-[-0.4rem]">
-                            {serviceDuration}
-                        </div>
-                    </div>
-                        </div>}
-                    
+                        <div>
+                            <ServiceCard services={services}/>
+                        </div>    
+                    }
                 </div>
         </div> 
                 </div>

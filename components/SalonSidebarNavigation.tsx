@@ -13,7 +13,7 @@ export default function SalonSidebarNavigation() {
   return (
     <>
       {colapsedSidebar == true ? (
-        <div className="relative w-1/6">
+        <div className="relative w-1/6 border-r-2 border-breta-gray">
           <aside className="absolute left-0 bottom-0 h-full w-full flex flex-col bg-breta-light-gray px-4">
             <div className="flex flex-col justify-between gap-4 h-full font-semibold tracking-wide text-breta-blue">
               <div>
@@ -94,7 +94,7 @@ export default function SalonSidebarNavigation() {
           </aside>
         </div>
       ) : (
-        <div className="relative w-[4rem]">
+        <div className="relative w-[4rem] border-r-2 border-breta-gray">
           <aside className="absolute left-0 top-0 h-full w-full bg-breta-light-gray flex flex-col font-semibold tracking-wide text-breta-blue">
             <div className="flex flex-col items-center ">
               <div
