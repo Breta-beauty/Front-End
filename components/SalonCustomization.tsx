@@ -18,6 +18,10 @@ export interface ScheduleDays {
   from: string;
   to: string;
 }
+export interface Ratings {
+  score: string;
+  comment: string;
+}
 const scheduleInitialValue: ScheduleDays[] = [
   { day: "lunes", open: false, from: "", to: "" },
   { day: "martes", open: false, from: "", to: "" },
@@ -27,7 +31,9 @@ const scheduleInitialValue: ScheduleDays[] = [
   { day: "sabado", open: false, from: "", to: "" },
   { day: "domingo", open: false, from: "", to: "" },
 ];
+
 export interface SalonData {
+  salon_id: string;
   salon_name: string;
   type: string;
   email: string;
@@ -38,6 +44,7 @@ export interface SalonData {
   schedule: ScheduleDays[];
   wallpaper: string;
   image_gallery: string[];
+  ratings: Ratings[];
 }
 export interface SalonLocation {
   country:string
@@ -227,7 +234,6 @@ const SalonCustomization = () => {
   const createBlob = (image: File) => {
     return URL.createObjectURL(image);
   };
-
 
   return (
     <>

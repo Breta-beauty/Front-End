@@ -100,6 +100,7 @@ export default function LoginSigninForm() {
     try {
       setUserActionLogin(true);
       const response = await fetch(URL, options);
+      console.log(graphqlQuerry);
       const data = await response.json();
       console.log(data.data);
       console.log(data);
@@ -220,7 +221,7 @@ export default function LoginSigninForm() {
                 ) : (
                   <>
                     <div className="text-2xl text-breta-dark-blue mb-2 font-bold">
-                      !Bienvenido de Nuevo¡
+                      ¡Bienvenido de Nuevo!
                     </div>
                     <div className="text-breta-dark-blue">
                       Nos da gusto verte de vuelta. Inicia sesión con tu cuenta
