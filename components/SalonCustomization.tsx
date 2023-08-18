@@ -231,7 +231,7 @@ const SalonCustomization = () => {
 
   return (
     <>
-      <div className="flex gap-4 flex-nowrap w-full h-full p-8">
+      <div className="flex gap-4 flex-nowrap w-full h-full">
         <div className="flex flex-col justify-around gap-2 h-full w-1/3 p-4 shadow-lg shadow-breta-blue/40 border-2 border-gray-300 rounded-xl">
           <label
             className="block my-0 mx-auto justify-center shrink w-1/2 text-breta-blue text-sm font-semibold leading-6 select-none"
