@@ -181,7 +181,7 @@ export default function SalonProfile() {
                     <div className="ml-[1rem]">
                         <div className="w-[248px] h-[124px] shadow-lg shadow-breta-shadow/50 bg-breta-dark-blue gap-4 flex rounded-lg cursor-pointer">
                             <div className="overflow-hidden h-full w-[50%] rounded-tl-lg rounded-bl-lg">
-                                <div className="relative h-full w-full bg-cover bg-cover bg-MobileCarouselImage0 md:bg-salonCarouselImage0">
+                                <div className="relative h-full w-full bg-cover bg-MobileCarouselImage0 md:bg-salonCarouselImage0">
                                     {/* <div className="absolute h-full w-full z-10 bg-cover bg-MobileCarouselImage3 md:bg-salonCarouselImage3">
                                     <img 
                                         src={salon.wallpaper}
