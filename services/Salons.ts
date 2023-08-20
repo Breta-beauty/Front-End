@@ -28,6 +28,72 @@ export async function getSalonById(id: number|undefined) {
         ratings{
           score
         }
+        services {
+          service_name
+          description
+          timespan
+        }
+    }
+    }
+    `;
+  const options = {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify({ query: graphqlQuerry }),
+  };
+  try {
+    const response = await fetch(url, options);
+    const result = await response.json();
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export async function getEmployees(id: string) {
+  const graphqlQuerry: string = `{
+      salon(salon_id: ${id}){
+        employee{
+          profile_picture
+          employee_name
+          cellphone
+          email
+          commission
+          paymentCycle
+          payday
+          role {
+            role_name
+          }
+        }
+        roles {
+          role_name
+        }
+    }
+    }
+    `;
+  const options = {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify({ query: graphqlQuerry }),
+  };
+  try {
+    const response = await fetch(url, options);
+    const result = await response.json();
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export async function getRatingById(id: string) {
+  const graphqlQuerry: string = `{
+      salon(salon_id: ${id}){
+        salon_id
+        salon_name
+        ratings{
+          score
+          comment
+        }
     }
     }
     `;
@@ -175,3 +241,61 @@ export async function getSalons() {
   }
 };
 
+export async function getAddress(id: string) {
+  const graphqlQuerry: string = `{
+      salon(salon_id: ${id}){
+        salon_id
+        salon_name
+        address{
+          city
+          street
+          exterior_number
+          postal_code
+        }
+    }
+    }
+    `;
+  const options = {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify({ query: graphqlQuerry }),
+  };
+  try {
+    const response = await fetch(url, options);
+    const result = await response.json();
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export async function getServices(id: string) {
+  const graphqlQuerry: string = `{
+      salon(salon_id: ${id}){
+        salon_id
+        main_picture
+        services{
+          service_name
+          category
+          timespan
+          price
+        }
+        employee {
+          profile_picture
+        }
+    }
+    }
+    `;
+  const options = {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify({ query: graphqlQuerry }),
+  };
+  try {
+    const response = await fetch(url, options);
+    const result = await response.json();
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
+}
