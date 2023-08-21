@@ -45,9 +45,9 @@ export default function SalonProfile() {
     const fetchSalon = async () => {
       const request = await getSalonById(id);
       console.log(request);
-      setSalon(request.data.salon);
-      setSalonLocation(request.data.salon.address);
-      setServices(request.data.salon.services);
+      setSalon(request);
+      setSalonLocation(request.address);
+      setServices(request.services);
     };
     fetchSalon();
     id ? setLoading(false) : routing.push("/IndexUser");
