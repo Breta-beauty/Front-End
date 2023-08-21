@@ -12,7 +12,7 @@ export default function RootLayout({
         <SalonHeader/>
         <div className="relative flex flex-1">
           <SalonSidebarNavigation />
-          <div className="p-12 w-5/6 h-full flex-1">
+          <div className="w-5/6 h-full flex-1">
             {children}
           </div>
         </div>
