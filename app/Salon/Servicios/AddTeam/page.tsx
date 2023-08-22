@@ -1,3 +1,4 @@
+"use client"
 import Link from 'next/link';
 import SalonHeader from '@/components/SalonHeader';
 const IconPack = require("../../../../public/icons/Icons");
@@ -6,9 +7,6 @@ const Icons = new IconPack();
 export default function AddTeam() {
     return(
         <>
-            <div>
-                <SalonHeader />
-            </div>
             <div className="w-full h-[6%] bg-breta-light-gray border-b-2 border-breta-gray">
                 <div className="float-right mr-5 mt-3">
                     <Link href={"/Salon/Servicios"}>

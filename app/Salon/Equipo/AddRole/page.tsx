@@ -25,7 +25,7 @@ export default function AddRole() {
                 "Por favor, complete la información"
             ]);
         }
-        const URL: string =  "http://localhost:3000/graphql";
+        const URL: string =  "https://breta-api.onrender.com/graphql";
         const graphqlQuerry: string = `mutation{
             createRole(
                 salon_id: 1
@@ -54,9 +54,6 @@ export default function AddRole() {
 
     return(
         <>
-            <div>
-                <SalonHeader />
-            </div>
             <div className="w-full h-[6%] bg-breta-light-gray border-b-2 border-breta-gray">
                 <div className="float-right mr-5 mt-3">
                     <Link href={"/Salon/Equipo"}>

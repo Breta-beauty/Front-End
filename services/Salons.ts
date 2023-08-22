@@ -44,7 +44,7 @@ export async function getSalonById(id: number|undefined) {
   try {
     const response = await fetch(url, options);
     const result = await response.json();
-    return result;
+    return result.data.salon;
   } catch (err) {
     console.log(err);
   }
@@ -79,6 +79,7 @@ export async function getEmployees(id: string) {
   try {
     const response = await fetch(url, options);
     const result = await response.json();
+    console.log(result)
     return result;
   } catch (err) {
     console.log(err);
@@ -294,7 +295,7 @@ export async function getServices(id: string) {
   try {
     const response = await fetch(url, options);
     const result = await response.json();
-    return result;
+    return result.data.salon.services;
   } catch (err) {
     console.log(err);
   }

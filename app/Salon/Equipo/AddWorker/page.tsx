@@ -72,7 +72,7 @@ export default function AddWorker() {
         role: string
     ) => {
         
-        const URL: string =  "http://localhost:3000/graphql";
+        const URL: string = "https://breta-api.onrender.com/graphql";
         const imageUrl = await SendLogo(profile_picture);
         const graphqlQuerry: string = `mutation{
             createEmployee(
@@ -137,9 +137,6 @@ export default function AddWorker() {
               </>
             ) : (
                 <>
-                <div>
-                <SalonHeader />
-            </div>
             <div className="w-full h-[6%] bg-breta-light-gray border-b-2 border-breta-gray">
                 <div className="float-right mr-5 mt-3">
                     <Link href={"/Salon/Equipo"}>

@@ -105,7 +105,7 @@ export default function AddService() {
                 "Por favor, complete toda la información"
             ]);
         } 
-        const URL: string = "http://localhost:3000/graphql";
+        const URL: string = "https://breta-api.onrender.com/graphql";
         const graphqlQuerry: string = `mutation{
             createService(
                 salon_id: 1
@@ -142,10 +142,7 @@ export default function AddService() {
 
     return(
     <>
-        <div>
-            <SalonHeader />
-        </div>
-        <div className="w-full h-[6%] bg-breta-light-gray border-b-2 border-breta-gray">
+        <div className="w-full h-[3%] bg-breta-light-gray border-b-2 border-breta-gray">
             <div className="float-right mr-5 mt-3">
                 <Link href={"/Salon/Servicios"}>
                     <Icons.QuitBig />

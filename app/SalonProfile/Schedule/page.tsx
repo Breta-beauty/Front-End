@@ -21,7 +21,7 @@ export default function Schedule() {
         // token ? setLoading(false) : routing.push("/");
         const fetchSalon = async()=>{
             const request = await getSalonById(id);
-            setSalon(request.data.salon);
+            setSalon(request);
         } 
         fetchSalon();
         id ? setLoading(false) : routing.push("/IndexUser");

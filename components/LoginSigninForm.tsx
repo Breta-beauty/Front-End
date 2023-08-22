@@ -453,7 +453,7 @@ export default function LoginSigninForm() {
                             name="hosting"
                             value="hosting-small"
                             className="hidden peer"
-                            checked={userType === "user"}
+                            checked={userType === "customer"}
                             required
                           />
                           <label
