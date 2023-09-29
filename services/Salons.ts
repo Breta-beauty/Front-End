@@ -4,7 +4,7 @@ const headers = {
   "content-type": "application/json",
 };
 
-export async function getSalonById(id: number|undefined) {
+export async function getSalonById(id: string|undefined) {
   const graphqlQuerry: string = `{
       salon(salon_id: ${id}){
         salon_id
