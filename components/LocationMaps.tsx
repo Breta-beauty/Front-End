@@ -41,11 +41,11 @@ export default function LocationMaps(props: { address: any }) {
 
   useEffect(() => {
     Geocode.fromAddress(addressaa).then(
-      (response) => {
+      (response:any) => {
         const { lat, lng } = response.results[0].geometry.location;
         setCoordinates({ lat, lng });
       },
-      (error) => {
+      (error:any) => {
         console.error('Error al geocodificar la dirección:', error);
       }
     );
