@@ -127,11 +127,11 @@ export default function AddService() {
             body: JSON.stringify({ query: graphqlQuerry }),
           };
           console.log(graphqlQuerry)
-          console.log(gender)
           try {
-            const response = await fetch(URL, options);        
-            const data = await response.json();
-            const result = data.data;
+              const response = await fetch(URL, options);        
+              const data = await response.json();
+              console.log(data)
+              const result = data.data;
             if(result != null){
                 router.push("/Salon/Equipo");
             } 

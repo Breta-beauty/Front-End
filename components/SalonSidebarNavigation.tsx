@@ -50,15 +50,6 @@ export default function SalonSidebarNavigation() {
                       <div className="">Servicios</div>
                     </Link>
                     <Link
-                      href={"/Salon/Promociones"}
-                      className="relative w-full flex items-center px-8 gap-12 py-2 rounded-md cursor-pointer hover:bg-breta-gray"
-                    >
-                      <div className="">
-                        <Icons.Sale />
-                      </div>
-                      <div className="">Promociones</div>
-                    </Link>
-                    <Link
                       href={"/Salon/Clientes"}
                       className="relative w-full flex items-center px-8 gap-12 py-2 rounded-md cursor-pointer hover:bg-breta-gray"
                     >
@@ -80,17 +71,6 @@ export default function SalonSidebarNavigation() {
                 </div>
               </div>
             </div>
-            <Link
-              href={"/Salon/Soporte"}
-              className="relative w-full flex items-center px-4 gap-8 mb-4 py-2 rounded-md cursor-pointer hover:bg-breta-gray"
-            >
-              <div className="">
-                <Icons.Support />
-              </div>
-              <div className="font-semibold tracking-wide text-breta-blue">
-                Soporte
-              </div>
-            </Link>
           </aside>
         </div>
       ) : (

@@ -5,7 +5,7 @@ export default function ClientRow(props:{
 }) {
   return (
     <>
-    <div className="grid grid-cols-6 max-h-16 mb-2 items-center text-center">
+    <div key={props.client.name} className="grid grid-cols-6 max-h-16 mb-2 items-center text-center">
       <div className="w-full flex justify-center h-full max-w-12">
         <img className="h-16 rounded-full" src= {props.client.profilePicture} alt="Client Profile Picture" />
       </div>

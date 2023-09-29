@@ -1,3 +1,4 @@
+"use client";
 // import { ServiceIcon } from "./ServiceIcon";
 // import ConfirmedEvendIcon from "./ConfirmedEvendIcon";
 // import CancelIcon from "./CancelIcon";
@@ -5,7 +6,18 @@
 import { Popover } from "@headlessui/react";
 import { useState } from "react";
 import { usePopper } from "react-popper";
-
+interface event {
+  appointment_id: number;
+  service: string;
+  client: string;
+  pay: string;
+  id: number;
+  start: Date;
+  end: Date;
+  resourceId: [];
+  is_active: string;
+  status: string;
+}
 export const CalendarEventCard = ({ event }: any) => {
   const [referenceElement, setReferenceElement] =
     useState<HTMLButtonElement | null>(null);
@@ -18,7 +30,7 @@ export const CalendarEventCard = ({ event }: any) => {
   });
 
   const dateFormater = () => {
-    const EventDates = {
+    const events = {
       start: {
         day: event.start.getUTCDate(),
         month: event.start.toLocaleString("default", { month: "long" }),
@@ -60,25 +72,23 @@ export const CalendarEventCard = ({ event }: any) => {
         }${event.end.getHours() >= 12 ? "pm" : "am"}`,
       },
     };
-    return EventDates;
+    return events;
   };
-  const eventDate = dateFormater();
-  const [editEvent, setEditEvent] = useState<boolean>(false);
 
-  const handleEventEdit = () => {};
-  const handleEventAccept = () => {};
-  const handleEventCancel = () => {};
   return (
     <>
       <Popover className="h-full rounded-lg flex">
-        <div className="w-2 h-full bg-green-500 rounded-l-md z-10"></div>
+        <div
+          style={{
+            backgroundColor:
+              event.status === "accepted" ? "#29CC00" : event.status === "finished" ? "#668393" : "#F9CD45",
+          }}
+          className="w-2 h-full rounded-l-md z-10"
+        ></div>
 
         <div className="bg-white text-cyan-800 flex flex-col justify-between flex-1 p-2 text-sm">
           <div>
             <div className="flex justify-between text-black">
-              <div className="">
-                {eventDate.start.fullHour} - {eventDate.end.fullHour}
-              </div>
               <div className="">Tradicional</div>
             </div>
             <div className="flex ">
@@ -88,7 +98,7 @@ export const CalendarEventCard = ({ event }: any) => {
             {event.client}
           </div>
           <div className="flex justify-between">
-            <div className=" text-right">{event.pay}</div>
+            <div className=" text-right">${event.pay}</div>
             <Popover.Button
               className="text-cyan-700 border border-cyan-700 rounded-md px-4 hover:bg-gray-200 hover:"
               ref={(ref) => setReferenceElement(ref)}
@@ -101,81 +111,46 @@ export const CalendarEventCard = ({ event }: any) => {
           ref={(ref) => setPopperElement(ref)}
           style={styles.popper}
           {...attributes.popper}
-          className="absolute z-50 min-h-64 min-w-full w-72 rounded-lg shadow-lg"
+          className="absolute z-50 min-h-64 min-w-5/6 w-72 rounded-lg shadow-lg"
         >
-          <div className="flex items-center justify-start gap-4 px-2 w-full text-white h-8 bg-green-500 rounded-t-md z-10">
+          <div
+            style={{
+              backgroundColor:
+              event.status === "accepted" ? "#29CC00" : event.status === "finished" ? "#668393" : "#F9CD45",
+            }}
+            className="flex items-center justify-start gap-4 px-2 w-full text-white h-8 rounded-t-md z-10"
+          >
             {/* <ConfirmedEvendIcon />  */}
-            Aceptada
+            {event.status === "accepted" ? "Aceptada" : event.status === "finished" ? "Terminada" : "Pendiente"}
           </div>
 
           <div className="bg-white text-cyan-800 flex flex-col justify-between flex-1 p-2 rounded-md">
             <div className="w-full">
               <div className="mb-2">
                 <div className="font-bold">{event.service}</div>
-                <div className="text-xs">Duration</div>
+                <div className="text-xs">
+                  {(event.end - event.start) / (1000 * 60 * 60)} horas.
+                </div>
               </div>
               <div className="mb-2">
                 <div className="font-bold">{event.client}</div>
-                <div className="text-xs">Client ID</div>
               </div>
-              {editEvent == false ? (
-                <>
-                  <div className="text-xs">{eventDate.start.fullDate}</div>
-                  <div className="text-xs mb-4 flex justify-between">
-                    <div>
-                      {eventDate.start.fullHour} - {eventDate.end.fullHour}
-                    </div>
-                    <div className="flex">
-                      {event.service}
-                      {/* <ServiceIcon /> */}
-                    </div>
-                  </div>
-                  <div className="text-xs flex justify-between">
-                    <div>{event.resourceId}</div>
-                    <div>{event.pay}</div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="text-xs flex gap-1 w-full">
-                    <input
-                      type="date"
-                      name="begin"
-                      placeholder="dd-mm-yyyy"
-                      value=""
-                      min="1997-01-01"
-                      max="2030-12-31"
-                    />
-                  </div>
-                  <div className="text-xs mb-4 flex justify-between">
-                    <div>
-                      {eventDate.start.fullHour} - {eventDate.end.fullHour}
-                    </div>
-                    <div className="flex">
-                      {event.service}
-                      {/* <ServiceIcon /> */}
-                    </div>
-                  </div>
-                  <div className="text-xs flex justify-between">
-                    <div>{event.resourceId}</div>
-                    <div>{event.pay}</div>
-                  </div>
-                </>
-              )}
+                <div className=" text-left">${event.pay}</div>
             </div>
           </div>
           <div className="px-2 py-1 h-8 flex justify-between bg-gray-100 rounded-b-lg">
-            <button
-              onClick={() => setEditEvent((editEvent) => !editEvent)}
-              className="flex items-center justify-center gap-2 text-cyan-700 px-3 py-1 border border-cyan-700 rounded-md"
-            >
-              {/* <EditIcon /> */}
-              Editar
-            </button>
-            <button className="flex items-center justify-center gap-2 text-white px-3 py-1 bg-cyan-700 rounded-md">
-              {/* <CancelIcon /> */}
-              Comenzar
-            </button>
+            {event.status === "accepted" && (
+              <button onClick={()=>{event.status = "finished"}} className="flex items-center justify-center gap-2 text-white px-3 py-1 bg-cyan-700 rounded-md">
+                {/* <CancelIcon /> */}
+                Terminar
+              </button>
+            )}
+            {event.status === "pending" && (
+              <button onClick={()=>{event.status = "accepted"}}className="flex items-center justify-center gap-2 text-white px-3 py-1 bg-cyan-700 rounded-md">
+                {/* <CancelIcon /> */}
+                Aceptar
+              </button>
+            )}
           </div>
         </Popover.Panel>
       </Popover>

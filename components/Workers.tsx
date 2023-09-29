@@ -88,7 +88,7 @@ export default function Workers( props: {
                 </div>
                 {props.employees.map((item: any, index: number) => {
                   return (
-                  <div className='w-full ml-36'>
+                  <div key={item.employee_name} className='w-full ml-36'>
                     <div className='flex w-[90%] mb-2 mt-2 key={index}'>
                       <div className='relative rounded-full overflow-hidden w-14 h-14 '> 
                         <img src={item.profile_picture}/>

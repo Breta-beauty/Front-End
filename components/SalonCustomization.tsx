@@ -84,7 +84,7 @@ const SalonCustomization = () => {
 
   const fetchSalonData = async () => {
     try{
-      const request = await getSalonById(Number(localStorage.getItem("salon_id")));
+      const request = await getSalonById(String(localStorage.getItem("salon_id")));
       setSalonDetails(request);
     }catch(err){
       console.log(err)

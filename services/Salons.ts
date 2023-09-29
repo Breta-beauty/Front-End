@@ -4,7 +4,7 @@ const headers = {
   "content-type": "application/json",
 };
 
-export async function getSalonById(id: number|undefined) {
+export async function getSalonById(id: string|undefined) {
   const graphqlQuerry: string = `{
       salon(salon_id: ${id}){
         salon_id
@@ -54,6 +54,7 @@ export async function getEmployees(id: string) {
   const graphqlQuerry: string = `{
       salon(salon_id: ${id}){
         employee{
+          employee_id
           profile_picture
           employee_name
           cellphone
@@ -164,7 +165,6 @@ export async function UpdateSalon(salonDetails: SalonData, id:number|undefined) 
     return err;
   }
 }
-
 export async function updateSalonAddress(salonDetails:SalonData){
   const graphqlQuerry:string = `
     mutation{
