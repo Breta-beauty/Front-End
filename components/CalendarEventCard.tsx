@@ -6,8 +6,6 @@
 import { Popover } from "@headlessui/react";
 import { useState } from "react";
 import { usePopper } from "react-popper";
-import { apointmentAccept } from "@/services/Apointments";
-import { EventManager } from "@project-serum/anchor";
 interface event {
   appointment_id: number;
   service: string;
