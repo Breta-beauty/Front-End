@@ -42,9 +42,9 @@ export default function Clientes() {
     <>
     <div className=" text-2xl font-bold text-breta-blue mb-6">Clientes</div>
     {
-      clients.map(client=>{
+      clients.map((client, index)=>{
         return(
-          <ClientRow client={client}/>
+          <ClientRow key={index} client={client}/>
         )
       })
     }
