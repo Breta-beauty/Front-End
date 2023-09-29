@@ -10,7 +10,7 @@ export default function ServiceCard(props: {
                   const timespanValues = Object.values(item.timespan) as number[];
                   const totalSum = timespanValues.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
                   return (
-                    <div> 
+                    <div key={item.service_name}> 
                         <div className="relative w-[90%] h-[122px] shadow-lg shadow-breta-shadow flex gap-4 rounded-lg ml-[1rem] mr-[4rem] grid grid-cols-1 gap-4 top-4 mt-5">
                             <div className="relative text-breta-dark-blue font-bold text-[12px] sm:text-[14px] ml-[1rem] top-2 inline-block">
                                 {item.service_name}

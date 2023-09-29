@@ -61,7 +61,7 @@ const Services = ( props: {
                   const timespanValues = Object.values(item.timespan) as number[];
                   const totalSum = timespanValues.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
                   return (
-                    <div className='w-full ml-36'>
+                    <div key={item.service_name} className='w-full ml-36'>
                       <div className='flex w-[90%] mb-2 mt-2 key={index}'>
                         <div className='w-[25%] text-breta-dark-blue text-[14px] ml-2 mt-4 font-bold'> 
                           {item.service_name}
