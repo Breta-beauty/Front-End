@@ -107,12 +107,14 @@ export default function LoginSigninForm() {
       const result = data.data.createUser;
       console.log(result);
       if (result != null) {
-        const createSalonResult = await CreateSalon(
-          result.user_id,
-          result.email,
-          result.cellphone
-        );
-        console.log(createSalonResult);
+        if(data.user.type == "owner"){
+          const createSalonResult = await CreateSalon(
+            result.user_id,
+            result.email,
+            result.cellphone
+          );
+          console.log(createSalonResult);
+        }
         setUserActionLogin(false);
         setFormState("login");
         setErrors([]);
@@ -146,6 +148,7 @@ export default function LoginSigninForm() {
                   user_id
                   type
                   profile{
+                    profile_id
                     salons{
                       salon_id
                     }
@@ -175,6 +178,7 @@ export default function LoginSigninForm() {
                 : null,
             })
           );
+          localStorage.setItem("profile_id", result.login.user.profile.profile_id);
           result.login.user.profile.salons.length == 0
             ? router.push("/IndexUser")
             : router.push("/Salon");

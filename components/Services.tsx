@@ -16,26 +16,9 @@ const Services = ( props: {
     return (
       <>
         <div className="w-full h-[10%] bg-breta-light-gray border-b-2 border-breta-gray">
-          <div className='flex items-center justify-end'>
-            <label htmlFor="toggle" className="flex items-center cursor-pointer mt-7 mr-16">
-              <span className={`mr-[-6rem]  font-bold z-50 ${isChecked ? 'text-white' : 'text-breta-blue'}`}>Servicios</span>
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    id="toggle"
-                    className="sr-only"
-                    checked={isChecked}
-                    onChange={handleToggle}
-                  />
-                  <div className="w-64 h-8 bg-white rounded-full shadow-inner"></div>
-                  <div className={`toggle-dot absolute w-32 h-8 mt-[-2rem] bg-breta-blue rounded-full shadow left-0.5 transition-transform ${isChecked ? 'translate-x-0' : 'translate-x-32'}`}></div>
-                </div>
-              <span className={`ml-[-6rem] font-bold z-50 ${isChecked ? 'text-breta-blue' : 'text-white'}`}>Equipos</span>
-            </label>
-          </div>
+
         </div>
         <div className="mt-5">
-          {isChecked == true ? (
             <div>
               <div className='flex'>
                 <div className="text-[26px] text-breta-blue font-bold ml-10">
@@ -112,21 +95,6 @@ const Services = ( props: {
                 })}
               </div>
             </div>
-          ): (
-            <div className='flex'>
-              <div className="text-[26px] text-breta-blue font-bold ml-10">
-            Equipos
-          </div>
-          <div className="ml-auto mr-4">
-            <Link href={"/Salon/Servicios/AddTeam"}>
-            <button className="flex w-[200px] gap-4 rounded-lg bg-breta-blue text-white font-bold py-2 px-4">
-              <Icons.New />
-              Nuevo Equipo
-            </button>
-            </Link>
-          </div>
-            </div>
-          )}
         </div>
       </>
     );
